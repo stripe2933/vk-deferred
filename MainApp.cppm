@@ -52,9 +52,13 @@ private:
                 {}, 0,
                 vk::makeApiVersion(0, 1, 2, 0), // MoltenVK conforms Vulkan 1.2.
             }),
+#ifdef NDEBUG
+            {},
+#else
             vku::unsafeProxy({
                 "VK_LAYER_KHRONOS_validation",
             }),
+#endif
             extensions,
         } };
     }

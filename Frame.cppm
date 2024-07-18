@@ -80,10 +80,10 @@ public:
         }, {});
 
         // Initialize attachment layouts.
-        vku::executeSingleCommand(*gpu.device, *commandPool, gpu.queue, [this](vk::CommandBuffer cb) {
+        vku::executeSingleCommand(*gpu.device, *commandPool, gpu.queues.graphicsPresent, [this](vk::CommandBuffer cb) {
             recordAttachmentLayoutInitializationCommands(cb);
         });
-        gpu.queue.waitIdle();
+        gpu.queues.graphicsPresent.waitIdle();
     }
 
     auto onLoop() -> void {
@@ -168,7 +168,7 @@ public:
         commandBuffer.end();
 
         // Submit commandBuffer to queue.
-        gpu.queue.submit(vk::SubmitInfo {
+        gpu.queues.graphicsPresent.submit(vk::SubmitInfo {
             *swapchainImageAvailableSemaphore,
             vku::unsafeProxy({ vk::Flags { vk::PipelineStageFlagBits::eColorAttachmentOutput } }),
             commandBuffer,
@@ -176,7 +176,7 @@ public:
         }, *frameFinishFence);
 
         // Present swapchain image.
-        const vk::Result swapchainImagePresentResult = gpu.queue.presentKHR(vk::PresentInfoKHR {
+        const vk::Result swapchainImagePresentResult = gpu.queues.graphicsPresent.presentKHR(vk::PresentInfoKHR {
             *drawFinishSemaphore,
             *sharedData.swapchain,
             swapchainImageIndex,

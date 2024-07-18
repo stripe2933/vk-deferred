@@ -57,10 +57,10 @@ public:
             0, // Assume first queue family supports graphics operation.
         } };
 
-        vku::executeSingleCommand(*gpu.device, *commandPool, gpu.queue, [this](vk::CommandBuffer cb) {
+        vku::executeSingleCommand(*gpu.device, *commandPool, gpu.queues.graphicsPresent, [this](vk::CommandBuffer cb) {
             recordAttachmentLayoutInitializationCommands(cb);
         });
-        gpu.queue.waitIdle();
+        gpu.queues.graphicsPresent.waitIdle();
     }
 
 private:
