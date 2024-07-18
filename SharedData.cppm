@@ -27,7 +27,8 @@ public:
     // --------------------
 
     GBufferRenderer gbufferRenderer;
-    DeferredRenderer deferredRenderer;
+    DeferredLightingRenderer deferredLightingRenderer;
+    ToneMappingRenderer toneMappingRenderer;
 
     // --------------------
     // GPU resources.
@@ -45,7 +46,8 @@ public:
         swapchainImages { (*gpu.device).getSwapchainImagesKHR(*swapchain) },
         deferredRenderPass { gpu.device },
         gbufferRenderer { gpu.device, deferredRenderPass },
-        deferredRenderer { gpu.device, deferredRenderPass },
+        deferredLightingRenderer { gpu.device, deferredRenderPass },
+        toneMappingRenderer { gpu.device, deferredRenderPass },
         sphereMesh { gpu.allocator },
         sphereTransforms { gpu.allocator },
         floorMesh { gpu.allocator },

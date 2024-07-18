@@ -11,8 +11,12 @@ layout (push_constant) uniform PushConstant {
     mat4 projectionView;
 } pc;
 
+vec3 toEuclideanCoord(vec4 homogeneousCoord){
+    return homogeneousCoord.xyz / homogeneousCoord.w;
+}
+
 void main() {
-    fragPosition = vec3(instanceTransform * vec4(inPosition, 1.0));
+    fragPosition = toEuclideanCoord(instanceTransform * vec4(inPosition, 1.0));
     fragNormal = mat3(transpose(inverse(instanceTransform))) * inNormal;
 
     gl_Position = pc.projectionView * vec4(fragPosition, 1.0);

@@ -32,8 +32,15 @@ export struct DeferredRenderPass final : vk::raii::RenderPass {
             },
             vk::AttachmentDescription {
                 {},
+                vk::Format::eB10G11R11UfloatPack32, vk::SampleCountFlagBits::e1,
+                vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare,
+                {}, {},
+                vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
+            },
+            vk::AttachmentDescription {
+                {},
                 vk::Format::eB8G8R8A8Srgb, vk::SampleCountFlagBits::e1,
-                vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore,
+                vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eStore,
                 {}, {},
                 vk::ImageLayout::ePresentSrcKHR, vk::ImageLayout::ePresentSrcKHR,
             },
@@ -63,6 +70,16 @@ export struct DeferredRenderPass final : vk::raii::RenderPass {
                 {},
                 vku::unsafeAddress(vk::AttachmentReference { 2, vk::ImageLayout::eDepthStencilAttachmentOptimal }),
             },
+            vk::SubpassDescription {
+                {},
+                vk::PipelineBindPoint::eGraphics,
+                vku::unsafeProxy({
+                    vk::AttachmentReference { 3, vk::ImageLayout::eShaderReadOnlyOptimal },
+                }),
+                vku::unsafeProxy({
+                    vk::AttachmentReference { 4, vk::ImageLayout::eColorAttachmentOptimal },
+                }),
+            },
         }),
         vku::unsafeProxy({
             vk::SubpassDependency {
@@ -71,6 +88,11 @@ export struct DeferredRenderPass final : vk::raii::RenderPass {
                 vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eFragmentShader,
                 vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eColorAttachmentWrite,
                 vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eInputAttachmentRead,
+            },
+            vk::SubpassDependency {
+                1, 2,
+                vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
+                vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eInputAttachmentRead,
             },
         }),
     } } { }

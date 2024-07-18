@@ -10,6 +10,37 @@ export import :SharedData;
 import :attachment_groups;
 import :meshes;
 
+#define INDEX_SEQ(Is, N, ...) [&]<std::size_t ...Is>(std::index_sequence<Is...>) __VA_ARGS__ (std::make_index_sequence<N>{})
+#define ARRAY_OF(N, ...) INDEX_SEQ(Is, N, { return std::array { ((void)Is, __VA_ARGS__)... }; })
+#define FWD(...) static_cast<decltype(__VA_ARGS__)&&>(__VA_ARGS__)
+
+export template <typename Derived>
+#if !defined(_LIBCPP_VERSION) && __cpp_lib_ranges >= 202202L // https://github.com/llvm/llvm-project/issues/70557#issuecomment-1851936055
+    using range_adaptor_closure = std::ranges::range_adaptor_closure<Derived>;
+#else
+    requires std::is_object_v<Derived>&& std::same_as<Derived, std::remove_cv_t<Derived>>
+struct range_adaptor_closure {
+    template <std::ranges::range R>
+    [[nodiscard]] friend constexpr auto operator|(
+        R&& r,
+        const Derived& derived
+    ) noexcept(std::is_nothrow_invocable_v<const Derived&, R>) {
+        return derived(FWD(r));
+    }
+};
+#endif
+
+export template <std::size_t N>
+struct to_array : range_adaptor_closure<to_array<N>> {
+    template <std::ranges::input_range R>
+    [[nodiscard]] constexpr auto operator()(
+        R &&r
+    ) const -> std::array<std::ranges::range_value_t<R>, N> {
+        auto it = r.begin();
+        return ARRAY_OF(N, *it++);
+    }
+};
+
 export class Frame {
 public:
     Frame(
@@ -18,21 +49,33 @@ public:
     ) : gpu { gpu },
         sharedData { sharedData },
         lightInstanceBuffer { gpu.allocator, std::mt19937 { std::random_device{}() } } {
+        std::tie(deferredLightingSet, toneMappingSet) = (*gpu.device).allocateDescriptorSets({
+            *descriptorPool,
+            vku::unsafeProxy({ *sharedData.deferredLightingRenderer.descriptorSetLayout, *sharedData.toneMappingRenderer.descriptorSetLayout }),
+        }) | to_array<2>();
+
         // Update per-frame descriptors.
         gpu.device.updateDescriptorSets({
             vk::WriteDescriptorSet {
-                descriptorSet,
+                deferredLightingSet,
                 0,
                 0,
                 vk::DescriptorType::eInputAttachment,
                 vku::unsafeProxy({ vk::DescriptorImageInfo { {}, *gbufferAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal } }),
             },
             vk::WriteDescriptorSet {
-                descriptorSet,
+                deferredLightingSet,
                 1,
                 0,
                 vk::DescriptorType::eInputAttachment,
                 vku::unsafeProxy({ vk::DescriptorImageInfo { {}, *gbufferAttachmentGroup.colorAttachments[1].view, vk::ImageLayout::eShaderReadOnlyOptimal } }),
+            },
+            vk::WriteDescriptorSet {
+                toneMappingSet,
+                0,
+                0,
+                vk::DescriptorType::eInputAttachment,
+                vku::unsafeProxy({ vk::DescriptorImageInfo { {}, *deferredLightingAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal } }),
             },
         }, {});
 
@@ -79,6 +122,7 @@ public:
                 vk::ClearColorValue { 0.f, 0.f, 0.f, 0.f },
                 vk::ClearDepthStencilValue { 1.f, 0 },
                 vk::ClearColorValue { 0.f, 0.f, 0.f, 0.f },
+                vk::ClearColorValue{},
             }),
         }, vk::SubpassContents::eInline);
 
@@ -100,10 +144,9 @@ public:
         commandBuffer.nextSubpass(vk::SubpassContents::eInline);
 
         // 2nd subpass: lighting.
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *sharedData.deferredRenderer.pipeline);
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *
-            sharedData.deferredRenderer.pipelineLayout, 0, descriptorSet, {});
-        commandBuffer.pushConstants<DeferredRenderer::PushConstant>(*sharedData.deferredRenderer.pipelineLayout, vk::ShaderStageFlagBits::eAllGraphics, 0, DeferredRenderer::PushConstant {
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *sharedData.deferredLightingRenderer.pipeline);
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *sharedData.deferredLightingRenderer.pipelineLayout, 0, deferredLightingSet, {});
+        commandBuffer.pushConstants<DeferredLightingRenderer::PushConstant>(*sharedData.deferredLightingRenderer.pipelineLayout, vk::ShaderStageFlagBits::eAllGraphics, 0, DeferredLightingRenderer::PushConstant {
             projectionView,
             eye,
         });
@@ -111,9 +154,14 @@ public:
         // Draw light volumes.
         commandBuffer.bindIndexBuffer(sharedData.sphereMesh.indexBuffer, 0, vk::IndexType::eUint16);
         commandBuffer.bindVertexBuffers(0, { sharedData.sphereMesh.vertexBuffer.buffer, lightInstanceBuffer.buffer }, { 0, 0 });
-        for (int i = 0; i < lightInstanceBuffer.instanceCount; ++i) {
-            commandBuffer.drawIndexed(sharedData.sphereMesh.drawCount, 1, 0, 0, i);
-        }
+        commandBuffer.drawIndexed(sharedData.sphereMesh.drawCount, lightInstanceBuffer.instanceCount, 0, 0, 0);
+
+        commandBuffer.nextSubpass(vk::SubpassContents::eInline);
+
+        // 3rd subpass: tone mapping.
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *sharedData.toneMappingRenderer.pipeline);
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *sharedData.toneMappingRenderer.pipelineLayout, 0, toneMappingSet, {});
+        commandBuffer.draw(3, 1, 0, 0);
 
         commandBuffer.endRenderPass();
 
@@ -145,6 +193,7 @@ private:
     // --------------------
 
     GBufferAttachmentGroup gbufferAttachmentGroup { gpu, sharedData.swapchainExtent };
+    DeferredLightingAttachmentGroup deferredLightingAttachmentGroup { gpu, sharedData.swapchainExtent, gbufferAttachmentGroup.depthStencilAttachment->image };
     std::vector<SwapchainAttachmentGroup> swapchainAttachmentGroups = createSwapchainAttachmentGroups();
 
     // --------------------
@@ -164,10 +213,7 @@ private:
     // --------------------
 
     vk::raii::DescriptorPool descriptorPool = createDescriptorPool();
-    vk::DescriptorSet descriptorSet = (*gpu.device).allocateDescriptorSets({
-        *descriptorPool,
-        *sharedData.deferredRenderer.descriptorSetLayout,
-    })[0];
+    vk::DescriptorSet deferredLightingSet, toneMappingSet;
 
     // --------------------
     // Command pools and buffers.
@@ -195,7 +241,6 @@ private:
                     gpu.device,
                     sharedData.swapchainExtent,
                     vku::Image { image, vk::Extent3D { sharedData.swapchainExtent, 1 }, vk::Format::eB8G8R8A8Srgb, 1, 1 },
-                    gbufferAttachmentGroup.depthStencilAttachment->image,
                 };
             })
             | std::ranges::to<std::vector>();
@@ -211,6 +256,7 @@ private:
                         *gbufferAttachmentGroup.colorAttachments[0].view,
                         *gbufferAttachmentGroup.colorAttachments[1].view,
                         *gbufferAttachmentGroup.depthStencilAttachment->view,
+                        *deferredLightingAttachmentGroup.colorAttachments[0].view,
                         *swapchainAttachmentGroup.colorAttachments[0].view,
                     }),
                     sharedData.swapchainExtent.width, sharedData.swapchainExtent.height, 1,
@@ -222,9 +268,9 @@ private:
     [[nodiscard]] auto createDescriptorPool() const -> vk::raii::DescriptorPool {
         return { gpu.device, vk::DescriptorPoolCreateInfo {
             {},
-            1,
+            2,
             vku::unsafeProxy({
-                vk::DescriptorPoolSize { vk::DescriptorType::eInputAttachment, 2 },
+                vk::DescriptorPoolSize { vk::DescriptorType::eInputAttachment, 3 },
             }),
         } };
     }
@@ -253,6 +299,12 @@ private:
             {}, vk::ImageLayout::eDepthStencilAttachmentOptimal,
             vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
             gbufferAttachmentGroup.depthStencilAttachment->image, vku::fullSubresourceRange(vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil),
+        });
+        barriers.push_back(vk::ImageMemoryBarrier {
+            {}, {},
+            {}, vk::ImageLayout::eShaderReadOnlyOptimal,
+            vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
+            deferredLightingAttachmentGroup.colorAttachments[0].image, vku::fullSubresourceRange(),
         });
 
         cb.pipelineBarrier(

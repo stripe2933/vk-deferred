@@ -55,7 +55,7 @@ export struct GBufferRenderer {
         } { }
 };
 
-export struct DeferredRenderer {
+export struct DeferredLightingRenderer {
     struct PushConstant {
         glm::mat4 projectionView;
         glm::vec3 viewPosition;
@@ -65,7 +65,7 @@ export struct DeferredRenderer {
     vk::raii::PipelineLayout pipelineLayout;
     vk::raii::Pipeline pipeline;
 
-    DeferredRenderer(
+    DeferredLightingRenderer(
         const vk::raii::Device &device [[clang::lifetimebound]],
         const DeferredRenderPass &renderPass [[clang::lifetimebound]]
     ) : descriptorSetLayout { device, vk::DescriptorSetLayoutCreateInfo {
@@ -120,5 +120,34 @@ export struct DeferredRenderer {
             }))
             .setRenderPass(*renderPass)
             .setSubpass(1)
+        } { }
+};
+
+export struct ToneMappingRenderer {
+    vk::raii::DescriptorSetLayout descriptorSetLayout;
+    vk::raii::PipelineLayout pipelineLayout;
+    vk::raii::Pipeline pipeline;
+
+    ToneMappingRenderer(
+        const vk::raii::Device &device [[clang::lifetimebound]],
+        const DeferredRenderPass &renderPass [[clang::lifetimebound]]
+    ) : descriptorSetLayout { device, vk::DescriptorSetLayoutCreateInfo {
+            {},
+            vku::unsafeProxy({
+                vk::DescriptorSetLayoutBinding { 0, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment },
+            }),
+        } },
+        pipelineLayout { device, vk::PipelineLayoutCreateInfo {
+            {},
+            *descriptorSetLayout,
+        } },
+        pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
+            vku::createPipelineStages(
+                device,
+                vku::Shader { COMPILED_SHADER_DIR "/full_triangle.vert.spv", vk::ShaderStageFlagBits::eVertex },
+                vku::Shader { COMPILED_SHADER_DIR "/rec709.frag.spv", vk::ShaderStageFlagBits::eFragment }).get(),
+            *pipelineLayout, 1)
+            .setRenderPass(*renderPass)
+            .setSubpass(2)
         } { }
 };

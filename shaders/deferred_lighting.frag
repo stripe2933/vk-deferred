@@ -7,10 +7,10 @@ layout (input_attachment_index = 0, set = 0, binding = 0) uniform subpassInput i
 layout (input_attachment_index = 1, set = 0, binding = 1) uniform subpassInput inputNormal;
 
 layout (location = 0) flat in vec3 fragInstancePosition;
-layout (location = 1) flat in float fragInstanceRadiusSq;
+layout (location = 1) flat in float fragInstanceRadius;
 layout (location = 2) flat in vec3 fragInstanceColor;
 
-layout (location = 0) out vec4 outColor;
+layout (location = 0) out vec3 outColor;
 
 layout (push_constant) uniform PushConstant {
     mat4 projectionView;
@@ -19,16 +19,16 @@ layout (push_constant) uniform PushConstant {
 
 layout (early_fragment_tests) in;
 
-float length2(vec3 v) {
-    return dot(v, v);
+float square(float x) {
+    return x * x;
 }
 
 void main(){
     vec3 fragPosition = subpassLoad(inputPosition).xyz;
-    float lightDistanceSq = length2(fragInstancePosition - fragPosition);
-    if (lightDistanceSq > fragInstanceRadiusSq) return;
+    float lightDistance = length(fragInstancePosition - fragPosition);
+    if (lightDistance > fragInstanceRadius) return;
 
-    float attenuation = 1.0 / (1.0 + (251.0 / (5 * fragInstanceRadiusSq)) * lightDistanceSq);
+    float attenuation = square(lightDistance / fragInstanceRadius - 1.0);
     vec3 lightColor = fragInstanceColor * attenuation;
     vec3 fragNormal = 2.0 * subpassLoad(inputNormal).xyz - 1.0;
 
@@ -39,10 +39,9 @@ void main(){
 
     // Specular.
     vec3 viewDir = normalize(pc.viewPosition - fragPosition);
-    vec3 reflectDir = reflect(-lightDir, fragNormal);
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(fragNormal, halfwayDir), 0.0), 32.0);
     vec3 specular = specularStrength * spec * lightColor;
 
-    outColor = vec4((diffuse + specular) * materialColor, 1.0);
+    outColor = (diffuse + specular) * materialColor;
 }

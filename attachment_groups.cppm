@@ -42,14 +42,32 @@ export struct GBufferAttachmentGroup final : vku::AttachmentGroup {
     }
 };
 
+export struct DeferredLightingAttachmentGroup final : vku::AttachmentGroup {
+    DeferredLightingAttachmentGroup(
+        const Gpu &gpu [[clang::lifetimebound]],
+        const vk::Extent2D &extent,
+        const vku::Image &depthStencilImage
+    ) : AttachmentGroup { extent } {
+        addColorAttachment(gpu.device, storeImage(createColorImage(
+            gpu.allocator,
+            vk::Format::eB10G11R11UfloatPack32,
+            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment | vk::ImageUsageFlagBits::eTransientAttachment,
+            vma::AllocationCreateInfo {
+                {},
+                vma::MemoryUsage::eAutoPreferDevice,
+                {},
+                vk::MemoryPropertyFlagBits::eLazilyAllocated,
+            })));
+        setDepthStencilAttachment(gpu.device, depthStencilImage);
+    }
+};
+
 export struct SwapchainAttachmentGroup final : vku::AttachmentGroup {
     SwapchainAttachmentGroup(
         const vk::raii::Device &device [[clang::lifetimebound]],
         const vk::Extent2D &extent,
-        const vku::Image &swapchainImage,
-        const vku::Image &depthStencilImage
+        const vku::Image &swapchainImage
     ) : AttachmentGroup { extent } {
         addColorAttachment(device, swapchainImage);
-        setDepthStencilAttachment(device, depthStencilImage);
     }
 };

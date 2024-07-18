@@ -1076,9 +1076,9 @@ public:
     auto update(float time) -> void {
         for (auto &&[center, oscillation3d] : std::views::zip(asRange<InstanceType>() | std::views::transform(&InstanceType::center), oscillations)) {
             center = glm::vec3 {
-                25.f * std::sin(oscillation3d[0].angularVelocity * time + oscillation3d[0].phase),
+                10.f * std::sin(oscillation3d[0].angularVelocity * time + oscillation3d[0].phase),
                 1.f + std::sin(oscillation3d[1].angularVelocity * time + oscillation3d[1].phase),
-                25.f * std::sin(oscillation3d[2].angularVelocity * time + oscillation3d[2].phase),
+                10.f * std::sin(oscillation3d[2].angularVelocity * time + oscillation3d[2].phase),
             };
         }
     }
