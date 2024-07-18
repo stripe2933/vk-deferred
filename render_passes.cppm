@@ -12,14 +12,14 @@ export struct DeferredRenderPass final : vk::raii::RenderPass {
             vk::AttachmentDescription {
                 {},
                 vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1,
-                vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare,
+                vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare,
                 {}, {},
                 vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
             },
             vk::AttachmentDescription {
                 {},
                 vk::Format::eA2B10G10R10UnormPack32, vk::SampleCountFlagBits::e1,
-                vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare,
+                vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare,
                 {}, {},
                 vk::ImageLayout::eShaderReadOnlyOptimal, vk::ImageLayout::eShaderReadOnlyOptimal,
             },

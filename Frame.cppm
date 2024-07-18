@@ -117,8 +117,8 @@ public:
             *framebuffers[swapchainImageIndex],
             vk::Rect2D { { 0, 0 }, sharedData.swapchainExtent },
             vku::unsafeProxy<vk::ClearValue>({
-                vk::ClearColorValue { 0.f, 0.f, 0.f, 0.f },
-                vk::ClearColorValue { 0.f, 0.f, 0.f, 0.f },
+                vk::ClearColorValue{},
+                vk::ClearColorValue{},
                 vk::ClearDepthStencilValue { 1.f, 0 },
                 vk::ClearColorValue { 0.f, 0.f, 0.f, 0.f },
                 vk::ClearColorValue{},
