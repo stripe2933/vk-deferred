@@ -90,6 +90,11 @@ export struct DeferredRenderPass final : vk::raii::RenderPass {
                 vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eInputAttachmentRead,
             },
             vk::SubpassDependency {
+                vk::SubpassExternal, 2,
+                vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eColorAttachmentOutput,
+                {}, vk::AccessFlagBits::eColorAttachmentWrite,
+            },
+            vk::SubpassDependency {
                 1, 2,
                 vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eFragmentShader,
                 vk::AccessFlagBits::eColorAttachmentWrite, vk::AccessFlagBits::eInputAttachmentRead,
