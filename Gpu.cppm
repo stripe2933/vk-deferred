@@ -99,7 +99,9 @@ private:
             {},
             vku::unsafeProxy({
                 vk::KHRSwapchainExtensionName,
+#if __APPLE__
                 "VK_KHR_portability_subset",
+#endif
             }),
         } };
     }

@@ -40,8 +40,10 @@ private:
     Gpu gpu { instance, *surface };
 
     [[nodiscard]] auto createInstance() const -> vk::raii::Instance {
-        std::vector extensions {
+        std::vector<const char*> extensions {
+#if __APPLE__
             vk::KHRPortabilityEnumerationExtensionName,
+#endif
         };
 
         // Add Vulkan extensions for GLFW.
@@ -49,7 +51,11 @@ private:
         extensions.append_range(std::views::counted(glfwGetRequiredInstanceExtensions(&glfwExtensionCount), glfwExtensionCount));
 
         return { context, vk::InstanceCreateInfo {
+#if __APPLE__
             vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR,
+#else
+            {},
+#endif
             vku::unsafeAddress(vk::ApplicationInfo {
                 "Vulkan Deferred Rendering", 0,
                 {}, 0,
