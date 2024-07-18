@@ -22,7 +22,7 @@ public:
 
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
-            frame.onLoop();
+            frame.onLoop(glfwGetTime());
         }
 
         gpu.device.waitIdle();

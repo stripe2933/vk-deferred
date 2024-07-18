@@ -86,10 +86,9 @@ public:
         gpu.queues.graphicsPresent.waitIdle();
     }
 
-    auto onLoop() -> void {
-        static std::uint64_t counter = 0;
-        ++counter;
-
+    auto onLoop(
+        float time
+    ) -> void {
         // Wait for the previous frame to finish.
         const vk::Result frameFinishResult = gpu.device.waitForFences(*frameFinishFence, true, ~0U);
         assert(frameFinishResult == vk::Result::eSuccess && "Failed to wait for frame finish fence.");
@@ -100,7 +99,7 @@ public:
             = glm::perspective(glm::radians(45.f), static_cast<float>(sharedData.swapchainExtent.width) / sharedData.swapchainExtent.height, 0.1f, 100.f)
             * lookAt(eye, glm::vec3 { 0.f }, { 0.f, 1.f, 0.f });
 
-        lightInstanceBuffer.update(counter / 120.f);
+        lightInstanceBuffer.update(time);
 
         // Acquire swapchain image to render.
         const auto [swapchainImageAvailableResult, swapchainImageIndex] = (*gpu.device).acquireNextImageKHR(*sharedData.swapchain, ~0U, *swapchainImageAvailableSemaphore, {});
