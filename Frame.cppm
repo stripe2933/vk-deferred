@@ -293,13 +293,13 @@ private:
                 attachment.image, vku::fullSubresourceRange(),
             };
         }));
-        barriers.push_back(vk::ImageMemoryBarrier {
+        barriers.push_back({
             {}, {},
             {}, vk::ImageLayout::eDepthStencilAttachmentOptimal,
             vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
             gbufferAttachmentGroup.depthStencilAttachment->image, vku::fullSubresourceRange(vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil),
         });
-        barriers.push_back(vk::ImageMemoryBarrier {
+        barriers.push_back({
             {}, {},
             {}, vk::ImageLayout::eShaderReadOnlyOptimal,
             vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
