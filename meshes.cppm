@@ -1067,7 +1067,7 @@ public:
         std::generate_n(back_inserter(oscillations), instanceCount, [&] {
             return std::array {
                 Oscillation { 10.f, 0.1f * piDist(randomGenerator), piDist(randomGenerator) },
-                Oscillation { 0.1f * piDist(randomGenerator), piDist(randomGenerator) },
+                Oscillation { 1.f, 0.1f * piDist(randomGenerator), piDist(randomGenerator) },
                 Oscillation { 10.f, 0.1f * piDist(randomGenerator), piDist(randomGenerator) },
             };
         });
