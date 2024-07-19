@@ -10,8 +10,8 @@ export struct DeferredLightRendererDescriptorSetLayout final : vku::DescriptorSe
             vk::DescriptorSetLayoutCreateInfo {
                 {},
                 vku::unsafeProxy({
-                    vk::DescriptorSetLayoutBinding { 0, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment },
-                    vk::DescriptorSetLayoutBinding { 1, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment },
+                    vk::DescriptorSetLayoutBinding { 0, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment }, // Position.
+                    vk::DescriptorSetLayoutBinding { 1, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment }, // [0, 1] bounded normal.
                 }),
             },
         } { }
@@ -25,7 +25,7 @@ export struct ToneMappingRendererDescriptorSetLayout final : vku::DescriptorSetL
             vk::DescriptorSetLayoutCreateInfo {
                 {},
                 vku::unsafeProxy({
-                    vk::DescriptorSetLayoutBinding { 0, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment },
+                    vk::DescriptorSetLayoutBinding { 0, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment }, // HDR image.
                 }),
             },
         } { }

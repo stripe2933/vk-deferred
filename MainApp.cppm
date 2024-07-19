@@ -8,6 +8,7 @@ export module vk_deferred:MainApp;
 import std;
 import vku;
 import :Frame;
+import :meshes;
 import :SharedData;
 
 #define INDEX_SEQ(Is, N, ...) [&]<std::size_t ...Is>(std::index_sequence<Is...>) __VA_ARGS__ (std::make_index_sequence<N>{})
@@ -24,16 +25,16 @@ public:
         const std::uint32_t seed = std::random_device{}();
         std::array frames = ARRAY_OF(2, Frame { gpu, sharedData, seed });
 
-        for (std::uint64_t frameIndex = 0; !glfwWindowShouldClose(window); frameIndex = (frameIndex + 1) % frames.size()){
+        for (std::uint64_t frameIndex = 0; !glfwWindowShouldClose(window); ++frameIndex){
             glfwPollEvents();
-            frames[frameIndex].onLoop(glfwGetTime());
+            frames[(frameIndex % frames.size())].onLoop(glfwGetTime());
         }
 
         gpu.device.waitIdle();
     }
 
 private:
-    GLFWwindow *window = glfwCreateWindow(640, 480, "Vulkan Deferred Rendering", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(640, 480, std::format("Vulkan Deferred Rendering ({} Lights)", LightInstanceBuffer::instanceCount).c_str(), nullptr, nullptr);
 
     vk::raii::Context context;
     vk::raii::Instance instance = createInstance();

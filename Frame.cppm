@@ -5,6 +5,7 @@ module;
 export module vk_deferred:Frame;
 
 import std;
+import vku;
 export import :Gpu;
 export import :SharedData;
 import :attachment_groups;
@@ -64,7 +65,7 @@ public:
         lightInstanceBuffer.update(time);
 
         // Acquire swapchain image to render.
-        const auto [swapchainImageAvailableResult, swapchainImageIndex] = (*gpu.device).acquireNextImageKHR(*sharedData.swapchain, ~0U, *swapchainImageAvailableSemaphore, {});
+        const auto [swapchainImageAvailableResult, swapchainImageIndex] = (*gpu.device).acquireNextImageKHR(*sharedData.swapchain, ~0U, *swapchainImageAvailableSemaphore);
         assert(swapchainImageAvailableResult == vk::Result::eSuccess && "Failed to acquire next swapchain image.");
 
         commandPool.reset();
@@ -244,31 +245,36 @@ private:
     auto recordAttachmentLayoutInitializationCommands(
         vk::CommandBuffer cb
     ) const -> void {
-        std::vector<vk::ImageMemoryBarrier> barriers;
-        barriers.append_range(gbufferAttachmentGroup.colorAttachments | std::views::transform([](const auto &attachment) {
-            return vk::ImageMemoryBarrier {
-                {}, {},
-                {}, vk::ImageLayout::eShaderReadOnlyOptimal,
-                vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-                attachment.image, vku::fullSubresourceRange(),
-            };
-        }));
-        barriers.push_back({
-            {}, {},
-            {}, vk::ImageLayout::eDepthStencilAttachmentOptimal,
-            vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-            gbufferAttachmentGroup.depthStencilAttachment->image, vku::fullSubresourceRange(vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil),
-        });
-        barriers.push_back({
-            {}, {},
-            {}, vk::ImageLayout::eShaderReadOnlyOptimal,
-            vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-            deferredLightingAttachmentGroup.colorAttachments[0].image, vku::fullSubresourceRange(),
-        });
-
+        // Initialize the image layouts as desired end layout of the frame, for avoid the undefined layout for
+        // initialLayout in render passes.
         cb.pipelineBarrier(
             vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eBottomOfPipe,
-            {},
-            {}, {}, barriers);
+            {}, {}, {},
+            {
+                vk::ImageMemoryBarrier {
+                    {}, {},
+                    {}, vk::ImageLayout::eShaderReadOnlyOptimal,
+                    vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
+                    gbufferAttachmentGroup.colorAttachments[0].image, vku::fullSubresourceRange(),
+                },
+                vk::ImageMemoryBarrier {
+                    {}, {},
+                    {}, vk::ImageLayout::eShaderReadOnlyOptimal,
+                    vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
+                    gbufferAttachmentGroup.colorAttachments[1].image, vku::fullSubresourceRange(),
+                },
+                vk::ImageMemoryBarrier {
+                    {}, {},
+                    {}, vk::ImageLayout::eDepthStencilAttachmentOptimal,
+                    vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
+                    gbufferAttachmentGroup.depthStencilAttachment->image, vku::fullSubresourceRange(vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil),
+                },
+                vk::ImageMemoryBarrier {
+                    {}, {},
+                    {}, vk::ImageLayout::eShaderReadOnlyOptimal,
+                    vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
+                    deferredLightingAttachmentGroup.colorAttachments[0].image, vku::fullSubresourceRange(),
+                }
+            });
     }
 };

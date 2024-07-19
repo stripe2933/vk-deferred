@@ -95,6 +95,8 @@ private:
     auto recordAttachmentLayoutInitializationCommands(
         vk::CommandBuffer cb
     ) const -> void {
+        // Initialize the image layouts as desired end layout of the frame, for avoid the undefined layout for
+        // initialLayout in render passes.
         cb.pipelineBarrier(
             vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eBottomOfPipe,
             {},

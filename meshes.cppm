@@ -1053,7 +1053,7 @@ public:
         glm::vec3 color;
     };
 
-    static constexpr std::uint32_t instanceCount = 625;
+    static constexpr std::uint32_t instanceCount = 1500;
 
     explicit LightInstanceBuffer(
         vma::Allocator allocator,
@@ -1079,7 +1079,7 @@ public:
                 oscillation3d[0].displacement(time),
                 oscillation3d[1].displacement(time),
                 oscillation3d[2].displacement(time),
-            } + glm::vec3 { 0.f, 1.f, 0.f };
+            } + glm::vec3 { 0.f, 1.5f, 0.f };
         }
     }
 
