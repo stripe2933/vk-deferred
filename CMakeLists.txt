@@ -48,6 +48,7 @@ target_sources(vk-deferred PRIVATE
     FILES
         mod.cppm
         attachment_groups.cppm
+        descriptor_set_layouts.cppm
         Frame.cppm
         Gpu.cppm
         MainApp.cppm

@@ -23,6 +23,13 @@ public:
     DeferredRenderPass deferredRenderPass;
 
     // --------------------
+    // Descriptor set layouts.
+    // --------------------
+
+    DeferredLightRendererDescriptorSetLayout deferredLightRendererDescriptorSetLayout;
+    ToneMappingRendererDescriptorSetLayout toneMappingRendererDescriptorSetLayout;
+
+    // --------------------
     // Pipelines.
     // --------------------
 
@@ -45,9 +52,11 @@ public:
     ) : swapchain { createSwapchain(gpu, surface) },
         swapchainImages { (*gpu.device).getSwapchainImagesKHR(*swapchain) },
         deferredRenderPass { gpu.device },
+        deferredLightRendererDescriptorSetLayout { gpu.device },
+        toneMappingRendererDescriptorSetLayout { gpu.device },
         gbufferRenderer { gpu.device, deferredRenderPass },
-        deferredLightingRenderer { gpu.device, deferredRenderPass },
-        toneMappingRenderer { gpu.device, deferredRenderPass },
+        deferredLightingRenderer { gpu.device, deferredLightRendererDescriptorSetLayout, deferredRenderPass },
+        toneMappingRenderer { gpu.device, toneMappingRendererDescriptorSetLayout, deferredRenderPass },
         sphereMesh { gpu.allocator },
         sphereTransforms { gpu.allocator },
         floorMesh { gpu.allocator },

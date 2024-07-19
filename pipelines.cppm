@@ -3,6 +3,7 @@ export module vk_deferred:pipelines;
 export import glm;
 export import vulkan_hpp;
 import vku;
+export import :descriptor_set_layouts;
 export import :render_passes;
 
 export struct GBufferRenderer {
@@ -61,23 +62,16 @@ export struct DeferredLightingRenderer {
         glm::vec3 viewPosition;
     };
 
-    vk::raii::DescriptorSetLayout descriptorSetLayout;
     vk::raii::PipelineLayout pipelineLayout;
     vk::raii::Pipeline pipeline;
 
     DeferredLightingRenderer(
         const vk::raii::Device &device [[clang::lifetimebound]],
+        const DeferredLightRendererDescriptorSetLayout &descriptorSetLayout [[clang::lifetimebound]],
         const DeferredRenderPass &renderPass [[clang::lifetimebound]]
-    ) : descriptorSetLayout { device, vk::DescriptorSetLayoutCreateInfo {
+    ) : pipelineLayout { device, vk::PipelineLayoutCreateInfo {
             {},
-            vku::unsafeProxy({
-                vk::DescriptorSetLayoutBinding { 0, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment },
-                vk::DescriptorSetLayoutBinding { 1, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment },
-            }),
-        } },
-        pipelineLayout { device, vk::PipelineLayoutCreateInfo {
-            {},
-            *descriptorSetLayout,
+            vku::unsafeProxy(descriptorSetLayout.getHandles()),
             vku::unsafeProxy({
                 vk::PushConstantRange { vk::ShaderStageFlagBits::eAllGraphics, 0, sizeof(PushConstant) },
             }),
@@ -124,22 +118,16 @@ export struct DeferredLightingRenderer {
 };
 
 export struct ToneMappingRenderer {
-    vk::raii::DescriptorSetLayout descriptorSetLayout;
     vk::raii::PipelineLayout pipelineLayout;
     vk::raii::Pipeline pipeline;
 
     ToneMappingRenderer(
         const vk::raii::Device &device [[clang::lifetimebound]],
+        const ToneMappingRendererDescriptorSetLayout &descriptorSetLayout [[clang::lifetimebound]],
         const DeferredRenderPass &renderPass [[clang::lifetimebound]]
-    ) : descriptorSetLayout { device, vk::DescriptorSetLayoutCreateInfo {
+    ) : pipelineLayout { device, vk::PipelineLayoutCreateInfo {
             {},
-            vku::unsafeProxy({
-                vk::DescriptorSetLayoutBinding { 0, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment },
-            }),
-        } },
-        pipelineLayout { device, vk::PipelineLayoutCreateInfo {
-            {},
-            *descriptorSetLayout,
+            vku::unsafeProxy(descriptorSetLayout.getHandles()),
         } },
         pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
             vku::createPipelineStages(

@@ -10,36 +10,14 @@ export import :SharedData;
 import :attachment_groups;
 import :meshes;
 
-#define INDEX_SEQ(Is, N, ...) [&]<std::size_t ...Is>(std::index_sequence<Is...>) __VA_ARGS__ (std::make_index_sequence<N>{})
-#define ARRAY_OF(N, ...) INDEX_SEQ(Is, N, { return std::array { ((void)Is, __VA_ARGS__)... }; })
 #define FWD(...) static_cast<decltype(__VA_ARGS__)&&>(__VA_ARGS__)
 
-export template <typename Derived>
-#if !defined(_LIBCPP_VERSION) && __cpp_lib_ranges >= 202202L // https://github.com/llvm/llvm-project/issues/70557#issuecomment-1851936055
-    using range_adaptor_closure = std::ranges::range_adaptor_closure<Derived>;
-#else
-    requires std::is_object_v<Derived>&& std::same_as<Derived, std::remove_cv_t<Derived>>
-struct range_adaptor_closure {
-    template <std::ranges::range R>
-    [[nodiscard]] friend constexpr auto operator|(
-        R&& r,
-        const Derived& derived
-    ) noexcept(std::is_nothrow_invocable_v<const Derived&, R>) {
-        return derived(FWD(r));
-    }
-};
-#endif
-
-export template <std::size_t N>
-struct to_array : range_adaptor_closure<to_array<N>> {
-    template <std::ranges::input_range R>
-    [[nodiscard]] constexpr auto operator()(
-        R &&r
-    ) const -> std::array<std::ranges::range_value_t<R>, N> {
-        auto it = r.begin();
-        return ARRAY_OF(N, *it++);
-    }
-};
+template <typename... Arrays>
+[[nodiscard]] constexpr auto array_cat(Arrays &&...arrays) {
+    return std::apply([](auto &&...xs) {
+        return std::array { FWD(xs)... };
+    }, std::tuple_cat(FWD(arrays)...));
+}
 
 export class Frame {
 public:
@@ -49,34 +27,17 @@ public:
     ) : gpu { gpu },
         sharedData { sharedData },
         lightInstanceBuffer { gpu.allocator, std::mt19937 { std::random_device{}() } } {
-        std::tie(deferredLightingSet, toneMappingSet) = (*gpu.device).allocateDescriptorSets({
-            *descriptorPool,
-            vku::unsafeProxy({ *sharedData.deferredLightingRenderer.descriptorSetLayout, *sharedData.toneMappingRenderer.descriptorSetLayout }),
-        }) | to_array<2>();
-
         // Update per-frame descriptors.
         gpu.device.updateDescriptorSets({
-            vk::WriteDescriptorSet {
-                deferredLightingSet,
-                0,
-                0,
-                vk::DescriptorType::eInputAttachment,
-                vku::unsafeProxy({ vk::DescriptorImageInfo { {}, *gbufferAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal } }),
-            },
-            vk::WriteDescriptorSet {
-                deferredLightingSet,
-                1,
-                0,
-                vk::DescriptorType::eInputAttachment,
-                vku::unsafeProxy({ vk::DescriptorImageInfo { {}, *gbufferAttachmentGroup.colorAttachments[1].view, vk::ImageLayout::eShaderReadOnlyOptimal } }),
-            },
-            vk::WriteDescriptorSet {
-                toneMappingSet,
-                0,
-                0,
-                vk::DescriptorType::eInputAttachment,
-                vku::unsafeProxy({ vk::DescriptorImageInfo { {}, *deferredLightingAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal } }),
-            },
+            deferredLightingSet.getDescriptorWrite<0, 0>().setImageInfo(vku::unsafeProxy({
+                vk::DescriptorImageInfo { {}, *gbufferAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal },
+            })),
+            deferredLightingSet.getDescriptorWrite<0, 1>().setImageInfo(vku::unsafeProxy({
+                vk::DescriptorImageInfo { {}, *gbufferAttachmentGroup.colorAttachments[1].view, vk::ImageLayout::eShaderReadOnlyOptimal },
+            })),
+            toneMappingSet.getDescriptorWrite<0, 0>().setImageInfo(vku::unsafeProxy({
+                vk::DescriptorImageInfo { {}, *deferredLightingAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal },
+            })),
         }, {});
 
         // Initialize attachment layouts.
@@ -212,7 +173,8 @@ private:
     // --------------------
 
     vk::raii::DescriptorPool descriptorPool = createDescriptorPool();
-    vk::DescriptorSet deferredLightingSet, toneMappingSet;
+    vku::DescriptorSets<DeferredLightRendererDescriptorSetLayout> deferredLightingSet { *gpu.device, *descriptorPool, sharedData.deferredLightRendererDescriptorSetLayout };
+    vku::DescriptorSets<ToneMappingRendererDescriptorSetLayout> toneMappingSet { *gpu.device, *descriptorPool, sharedData.toneMappingRendererDescriptorSetLayout };
 
     // --------------------
     // Command pools and buffers.
@@ -265,13 +227,10 @@ private:
     }
 
     [[nodiscard]] auto createDescriptorPool() const -> vk::raii::DescriptorPool {
-        return { gpu.device, vk::DescriptorPoolCreateInfo {
-            {},
-            2,
-            vku::unsafeProxy({
-                vk::DescriptorPoolSize { vk::DescriptorType::eInputAttachment, 3 },
-            }),
-        } };
+        return { gpu.device, (
+            vku::PoolSizes { sharedData.deferredLightRendererDescriptorSetLayout }
+            + vku::PoolSizes { sharedData.toneMappingRendererDescriptorSetLayout }
+        ).getDescriptorPoolCreateInfo() };
     }
 
     [[nodiscard]] auto createCommandPool() const -> vk::raii::CommandPool {
