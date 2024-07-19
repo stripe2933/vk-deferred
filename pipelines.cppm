@@ -85,7 +85,7 @@ export struct DeferredLightingRenderer {
             .setPVertexInputState(vku::unsafeAddress(vk::PipelineVertexInputStateCreateInfo {
                 {},
                 vku::unsafeProxy({
-                    vk::VertexInputBindingDescription { 0, sizeof(glm::vec3), vk::VertexInputRate::eVertex },
+                    vk::VertexInputBindingDescription { 0, sizeof(glm::vec3) * 2, vk::VertexInputRate::eVertex },
                     vk::VertexInputBindingDescription { 1, sizeof(glm::vec3) + sizeof(float) + sizeof(glm::vec3), vk::VertexInputRate::eInstance },
                 }),
                 vku::unsafeProxy({
