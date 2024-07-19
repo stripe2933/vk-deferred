@@ -23,10 +23,11 @@ export class Frame {
 public:
     Frame(
         const Gpu &gpu [[clang::lifetimebound]],
-        const SharedData &sharedData [[clang::lifetimebound]]
+        const SharedData &sharedData [[clang::lifetimebound]],
+        std::uint32_t seed
     ) : gpu { gpu },
         sharedData { sharedData },
-        lightInstanceBuffer { gpu.allocator, std::mt19937 { std::random_device{}() } } {
+        lightInstanceBuffer { gpu.allocator, std::mt19937 { seed } } {
         // Update per-frame descriptors.
         gpu.device.updateDescriptorSets({
             deferredLightingSet.getDescriptorWrite<0, 0>().setImageInfo(vku::unsafeProxy({

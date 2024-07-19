@@ -21,7 +21,8 @@ public:
 
     auto run() const -> void {
         const SharedData sharedData { gpu, *surface };
-        std::array frames = ARRAY_OF(2, Frame { gpu, sharedData });
+        const std::uint32_t seed = std::random_device{}();
+        std::array frames = ARRAY_OF(2, Frame { gpu, sharedData, seed });
 
         for (std::uint64_t frameIndex = 0; !glfwWindowShouldClose(window); frameIndex = (frameIndex + 1) % frames.size()){
             glfwPollEvents();
