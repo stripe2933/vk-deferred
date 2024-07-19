@@ -1066,9 +1066,9 @@ public:
         std::uniform_real_distribution piDist { 0.f, 2.f * std::numbers::pi_v<float> };
         std::generate_n(back_inserter(oscillations), instanceCount, [&] {
             return std::array {
+                Oscillation { 10.f, 0.1f * piDist(randomGenerator), piDist(randomGenerator) },
                 Oscillation { 0.1f * piDist(randomGenerator), piDist(randomGenerator) },
-                Oscillation { 0.1f * piDist(randomGenerator), piDist(randomGenerator) },
-                Oscillation { 0.1f * piDist(randomGenerator), piDist(randomGenerator) },
+                Oscillation { 10.f, 0.1f * piDist(randomGenerator), piDist(randomGenerator) },
             };
         });
     }
@@ -1076,17 +1076,22 @@ public:
     auto update(float time) -> void {
         for (auto &&[center, oscillation3d] : std::views::zip(asRange<InstanceType>() | std::views::transform(&InstanceType::center), oscillations)) {
             center = glm::vec3 {
-                10.f * std::sin(oscillation3d[0].angularVelocity * time + oscillation3d[0].phase),
-                1.f + std::sin(oscillation3d[1].angularVelocity * time + oscillation3d[1].phase),
-                10.f * std::sin(oscillation3d[2].angularVelocity * time + oscillation3d[2].phase),
-            };
+                oscillation3d[0].displacement(time),
+                oscillation3d[1].displacement(time),
+                oscillation3d[2].displacement(time),
+            } + glm::vec3 { 0.f, 1.f, 0.f };
         }
     }
 
 private:
     struct Oscillation {
+        float amplitude;
         float angularVelocity;
         float phase;
+
+        [[nodiscard]] auto displacement(float t) const -> float {
+            return amplitude * std::sin(angularVelocity * t + phase);
+        }
     };
 
     std::vector<std::array<Oscillation, 3>> oscillations;
