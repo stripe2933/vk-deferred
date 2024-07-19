@@ -63,7 +63,7 @@ public:
         floorTransforms { gpu.allocator } {
         const vk::raii::CommandPool commandPool { gpu.device, vk::CommandPoolCreateInfo {
             vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-            0, // Assume first queue family supports graphics operation.
+            gpu.queueFamilies.graphicsPresent,
         } };
 
         vku::executeSingleCommand(*gpu.device, *commandPool, gpu.queues.graphicsPresent, [this](vk::CommandBuffer cb) {

@@ -92,7 +92,7 @@ private:
             vku::unsafeProxy({
                 vk::DeviceQueueCreateInfo {
                     {},
-                    0, // Assume first queue family supports both graphics and present operation.
+                    queueFamilies.graphicsPresent,
                     vku::unsafeProxy({ 1.f }),
                 },
             }),

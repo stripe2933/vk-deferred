@@ -238,7 +238,7 @@ private:
     [[nodiscard]] auto createCommandPool() const -> vk::raii::CommandPool {
         return { gpu.device, vk::CommandPoolCreateInfo {
             vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-            0, // Assume first queue family supports graphics operation.
+            gpu.queueFamilies.graphicsPresent,
         } };
     }
 
