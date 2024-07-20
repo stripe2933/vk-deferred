@@ -1,6 +1,5 @@
 {
   "dependencies": [
-    "vulkan-memory-allocator-hpp",
     "glm",
     "glfw3"
   ]
