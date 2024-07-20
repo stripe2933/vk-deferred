@@ -26,9 +26,9 @@ jobs:
           vulkan-components: Vulkan-Headers, Vulkan-Loader
           vulkan-use-cache: true
 
-      - name: Install Ninja
+      - name: Install Ninja and GLFW dependencies
         run: |
-          sudo apt-get install ninja-build
+          sudo apt-get install ninja-build xinerama xcursor xorg libglu1-mesa pkg-config
 
       - name: Export GitHub Actions cache environment variables
         uses: actions/github-script@v7
