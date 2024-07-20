@@ -41,7 +41,7 @@ jobs:
         run: |
           git clone https://github.com/stripe2933/vku.git
           cd vku
-          git checkout branch
+          git checkout module
           git apply vcpkg-deps.patch
           cmake -S . -B build -G Ninja \
             -DCMAKE_C_COMPILER="/usr/bin/clang-18" \
