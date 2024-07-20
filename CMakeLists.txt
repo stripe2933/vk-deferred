@@ -14,16 +14,7 @@ set(CMAKE_CXX_MODULE_STD 1)
 
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
-
-include(FetchContent)
-FetchContent_Declare(
-    vku
-    GIT_REPOSITORY https://github.com/stripe2933/vku.git
-    GIT_TAG module
-    PATCH_COMMAND git apply ${CMAKE_CURRENT_BINARY_DIR}/_deps/vku-src/vcpkg-deps.patch # TODO: avoid hardcoded path!
-    FIND_PACKAGE_ARGS
-)
-FetchContent_MakeAvailable(vku)
+find_package(vku CONFIG REQUIRED)
 
 # ----------------
 # Module configurations for external dependencies.
