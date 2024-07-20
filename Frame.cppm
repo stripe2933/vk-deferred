@@ -72,8 +72,8 @@ public:
         commandBuffer.begin({ vk::CommandBufferUsageFlagBits::eOneTimeSubmit });
 
         // Set viewport and scissor, which are pipeline dynamic states.
-        gbufferAttachmentGroup.setViewport(commandBuffer, true);
-        gbufferAttachmentGroup.setScissor(commandBuffer);
+        commandBuffer.setViewport(0, gbufferAttachmentGroup.getViewport(true));
+        commandBuffer.setScissor(0, gbufferAttachmentGroup.getScissor());
 
         commandBuffer.beginRenderPass(vk::RenderPassBeginInfo {
             *sharedData.deferredRenderPass,
