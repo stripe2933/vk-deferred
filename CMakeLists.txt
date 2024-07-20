@@ -14,7 +14,15 @@ set(CMAKE_CXX_MODULE_STD 1)
 
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
-find_package(vku CONFIG REQUIRED)
+
+include(FetchContent)
+FetchContent_Declare(
+    vku
+    GIT_REPOSITORY https://github.com/stripe2933/vku.git
+    GIT_TAG module
+    FIND_PACKAGE_ARGS
+)
+FetchContent_MakeAvailable(vku)
 
 # ----------------
 # Module configurations for external dependencies.
