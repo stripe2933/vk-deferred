@@ -47,7 +47,8 @@ jobs:
           cmake -S . -B build -G Ninja `
             -DCMAKE_BUILD_TYPE=Release `
             -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
-            -DVCPKG_OVERLAY_PORTS=overlays
+            -DVCPKG_OVERLAY_PORTS=overlays `
+            -DVKU_USE_STD_MODULE=ON
           cmake --build build --target install --config release
 
       - name: Configure

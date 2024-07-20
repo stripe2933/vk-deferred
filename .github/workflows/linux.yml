@@ -26,9 +26,9 @@ jobs:
           vulkan-components: Vulkan-Headers, Vulkan-Loader
           vulkan-use-cache: true
 
-      - name: Install Ninja and GLFW dependencies
+      - name: Install Ninja and build dependencies
         run: |
-          sudo apt-get install ninja-build xorg-dev
+          sudo apt-get install ninja-build xorg-dev libc++-dev libc++abi-dev
 
       - name: Export GitHub Actions cache environment variables
         uses: actions/github-script@v7
@@ -48,7 +48,10 @@ jobs:
             -DCMAKE_CXX_COMPILER="/usr/bin/clang++-18" \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" \
-            -DVCPKG_OVERLAY_PORTS=overlays
+            -DVCPKG_OVERLAY_PORTS=overlays \
+            -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
+            -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
+            -DVKU_USE_STD_MODULE=ON
           sudo cmake --build build --target install --config release
 
       - name: Configure
