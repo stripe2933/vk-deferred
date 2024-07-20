@@ -20,7 +20,7 @@ FetchContent_Declare(
     vku
     GIT_REPOSITORY https://github.com/stripe2933/vku.git
     GIT_TAG module
-    PATCH_COMMAND git apply ${vku_SOURCE_DIR}/vcpkg-deps.patch
+    PATCH_COMMAND git apply ${CMAKE_CURRENT_BINARY_DIR}/_deps/vku-src/vcpkg-deps.patch # TODO: avoid hardcoded path!
     FIND_PACKAGE_ARGS
 )
 FetchContent_MakeAvailable(vku)
