@@ -5,7 +5,6 @@
       "name": "default",
       "displayName": "Default",
       "generator": "Ninja",
-      "hidden": true,
       "binaryDir": "${sourceDir}/build/${presetName}"
     }
   ]
