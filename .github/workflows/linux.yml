@@ -43,6 +43,7 @@ jobs:
           cmake --preset=vcpkg \
             -DCMAKE_C_COMPILER="/usr/bin/clang-18" \
             -DCMAKE_CXX_COMPILER="/usr/bin/clang++-18" \
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
 
       - name: Build
         run: cmake --build build --config release

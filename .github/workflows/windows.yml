@@ -41,7 +41,8 @@ jobs:
       - name: Configure
         run: |
           mkdir build
-          cmake --preset=vcpkg
+          cmake --preset=vcpkg `
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
 
       - name: Build
         run: cmake --build build --config release
