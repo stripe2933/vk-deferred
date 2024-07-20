@@ -36,6 +36,13 @@ cmake --build build -t vk-deferred
 
 The executable will be located in the build folder.
 
+### Shader compilation
+
+All shaders are located in the [shaders](/shaders) folder and need to be manually compiled into `<shader-filename>.spv` before the application launch. To make this easier, script files are available for you:
+
+- For bash users, run the [`compile.sh`](/shaders/compile.sh) script.
+- For Windows users, run the [`compile.bat`](/shaders/compile.bat) batch file.
+
 ## About Render Pass and Attachment Images
 
 Since Vulkan allows explicit management of resource usage and memory properties, all attachment images used only in the render pass can be created with `vk::ImageUsageFlagBits::eTransientAttachment`. Additionally, if the system uses a tile-based GPU, you can use `vk::MemoryPropertyFlagBits::eLazilyAllocated` to avoid expensive memory allocation for the entire image (only each tile region will be allocated when the image is accessed). Therefore, **the memory consumption of the G-buffer in Vulkan is zero-cost (only swapchain images are allocated)** on TBGPU, which is hard to be achieved in OpenGL.
