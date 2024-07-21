@@ -23,17 +23,7 @@ include(${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake)
 
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
-
-if (USE_VCPKG)
-    set(VCPKG_PATCH_FILE "${CMAKE_CURRENT_BINARY_DIR}/_deps/vku-src/vcpkg-deps.patch")
-endif()
-CPMAddPackage(
-    NAME vku
-    GITHUB_REPOSITORY stripe2933/vku
-    GIT_TAG module
-    PATCHES ${VCPKG_PATCH_FILE} # Apply patch if USE_VCPKG enabled.
-    OPTIONS "VKU_USE_STD_MODULE ON"
-)
+find_package(vku CONFIG REQUIRED)
 
 # ----------------
 # Module configurations for external dependencies.

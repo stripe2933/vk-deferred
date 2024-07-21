@@ -1,0 +1,44 @@
+Subject: [PATCH] vcpkg-based dependency management.
+---
+Index: extlibs/module-ports/vk_mem_alloc.cppm
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/extlibs/module-ports/vk_mem_alloc.cppm b/extlibs/module-ports/vk_mem_alloc.cppm
+--- a/extlibs/module-ports/vk_mem_alloc.cppm	(revision 9ce74395ceab83fe55a4ae8ee8a6b8020e832542)
++++ b/extlibs/module-ports/vk_mem_alloc.cppm	(date 1721481973172)
+@@ -1,6 +1,6 @@
+ module;
+ #define VMA_IMPLEMENTATION
+-#include <vk_mem_alloc.hpp>
++#include <vulkan-memory-allocator-hpp/vk_mem_alloc.hpp>
+ export module vk_mem_alloc_hpp;
+ 
+ export namespace VMA_HPP_NAMESPACE {
+Index: CMakeLists.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	(revision 9ce74395ceab83fe55a4ae8ee8a6b8020e832542)
++++ b/CMakeLists.txt	(date 1721481973176)
+@@ -14,7 +14,7 @@
+ 
+ find_package(Vulkan 1.3.256 REQUIRED)
+ find_package(VulkanMemoryAllocator CONFIG REQUIRED)
+-find_package(VulkanMemoryAllocator-Hpp CONFIG REQUIRED)
++find_package(unofficial-vulkan-memory-allocator-hpp CONFIG REQUIRED)
+ 
+ # ----------------
+ # Module configurations for the external dependencies.
+@@ -50,7 +50,7 @@
+     target_link_libraries(VulkanMemoryAllocator-Hpp_module PUBLIC
+         Vulkan::Vulkan
+         GPUOpen::VulkanMemoryAllocator
+-        VulkanMemoryAllocator-Hpp::VulkanMemoryAllocator-Hpp
++        unofficial::VulkanMemoryAllocator-Hpp::VulkanMemoryAllocator-Hpp
+     )
+ 
+     add_library(VulkanMemoryAllocator-Hpp::module ALIAS VulkanMemoryAllocator-Hpp_module)
