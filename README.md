@@ -1,5 +1,8 @@
 # vk-deferred
 
+![Linux](https://github.com/stripe2933/vk-deferred/actions/workflows/linux.yml/badge.svg)
+![Windows](https://github.com/stripe2933/vk-deferred/actions/workflows/windows.yml/badge.svg)
+
 ![Running screenshot](doc/images/running-screenshot.png)
 
 A minimal Vulkan deferred rendering demonstration.
@@ -8,7 +11,7 @@ A minimal Vulkan deferred rendering demonstration.
 
 This project requires support for C++20 modules and the C++23 standard library. The supported compiler is:
 - Clang 18.1.2
-- ~~MSVC 19.40 (Older versions may fail to compile due to various MSVC module bugs)~~ (currently being tested)
+- ~~MSVC 19.40 (Older versions may fail to compile due to various MSVC module bugs)~~ (currently not working with internal compiler error: I'll investigate it!)
 
 Additionally, the following build tools are required:
 - CMake 3.30
@@ -19,22 +22,46 @@ Additionally, the following build tools are required:
 This project depends on:
 - [GLFW](https://github.com/glfw/glfw)
 - [glm](https://github.com/g-truc/glm)
-- [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp)
-- [VulkanMemoryAllocator-Hpp](https://github.com/YaaZ/VulkanMemoryAllocator-Hpp)
-- My own Vulkan-Hpp helper library, [vku](https://github.com/stripe2933/vku/tree/module) (branch `module`)
+- My own Vulkan-Hpp helper library, [vku](https://github.com/stripe2933/vku/tree/module) (branch `module`), which has the following dependencies:
+  - [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp)
+  - [VulkanMemoryAllocator-Hpp](https://github.com/YaaZ/VulkanMemoryAllocator-Hpp)
 
 ### Build Steps
 
-To install `vku`, refer to the repository's [README](https://github.com/stripe2933/vku/tree/module/README.md) and follow the instructions.
+### 1. Using vcpkg
+
+> [!TIP]
+> This project uses GitHub Runner to ensure build compatibility on both Linux and Windows, with dependency management handled by vcpkg. You can check the workflow files in the [.github/workflows](.github/workflows) folder.
+
+This project, along with its dependency `vku`, supports vcpkg for dependency management. Follow these steps to build the project:
 
 ```sh
 git clone https://github.com/stripe2933/vk-deferred
 cd vk-deferred
-cmake --preset=default # Or use your own CMakeUserPresets.json to override the configuration settings.
+cmake --preset=vcpkg # Or use your own configuration preset that inherits from the "vcpkg" preset.
 cmake --build build -t vk-deferred
 ```
 
 The executable will be located in the build folder.
+
+### 2. Manual Dependency Setup
+
+If your system already has the required dependencies installed, and the following CMake commands are available:
+
+```cmake
+find_package(VulkanMemoryAllocator REQUIRED)
+find_package(VulkanMemoryAllocator-Hpp REQUIRED)
+find_package(vku REQUIRED)
+```
+
+You can build the project with these commands:
+
+```sh
+git clone https://github.com/stripe2933/vk-deferred
+cd vk-deferred
+cmake --preset=default
+cmake --build build -t vk-deferred
+```
 
 ### Shader compilation
 

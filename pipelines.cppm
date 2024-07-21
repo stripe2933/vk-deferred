@@ -1,5 +1,8 @@
 export module vk_deferred:pipelines;
 
+#ifdef _MSC_VER
+import std;
+#endif
 export import glm;
 export import vulkan_hpp;
 import vku;

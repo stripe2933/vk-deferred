@@ -1,0 +1,53 @@
+name: Linux
+
+env:
+  VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+
+on:
+  push:
+    paths:
+      - '**'
+      - '!README.md'
+      - '!LICENSE.txt'
+      - '!doc/**'
+      - '!.github/workflows/*.yml'
+      - '.github/workflows/linux.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: latest
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+
+      - name: Install Ninja and build dependencies
+        run: |
+          sudo apt-get install ninja-build xorg-dev libc++-dev libc++abi-dev
+
+      - name: Export GitHub Actions cache environment variables
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: Configure
+        run: |
+          cmake --preset=vcpkg \
+            -DCMAKE_C_COMPILER="/usr/bin/clang-18" \
+            -DCMAKE_CXX_COMPILER="/usr/bin/clang++-18" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_OVERLAY_TRIPLETS=".github/workflows/triplets" \
+            -DVCPKG_TARGET_TRIPLET="x64-linux-clang" \
+            -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
+            -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
+
+      - name: Build
+        run: cmake --build build --config release

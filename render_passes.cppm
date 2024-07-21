@@ -1,5 +1,8 @@
 export module vk_deferred:render_passes;
 
+#ifdef _MSC_VER
+import std;
+#endif
 import vku;
 export import vulkan_hpp;
 

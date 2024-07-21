@@ -1,5 +1,8 @@
 export module vk_deferred:descriptor_set_layouts;
 
+#ifdef _MSC_VER
+import std;
+#endif
 import vku;
 
 export struct DeferredLightRendererDescriptorSetLayout final : vku::DescriptorSetLayouts<2> {
