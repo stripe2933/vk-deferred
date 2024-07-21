@@ -44,5 +44,10 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release `
             -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
 
+      - name: Print log file if previous step failed
+        if: ${{ failure() }}
+        run: |
+          Get-Content "C:\vcpkg\buildtrees\vku\install-x64-windows-dbg-out.log"
+
       - name: Build
         run: cmake --build build --config release
