@@ -44,6 +44,7 @@ jobs:
             -DCMAKE_CXX_COMPILER="/usr/bin/clang++-18" \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=".github/workflows/x64-linux-clang.cmake" \
             -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
             -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
 
