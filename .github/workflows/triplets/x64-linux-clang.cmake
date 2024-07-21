@@ -3,5 +3,4 @@ set(VCPKG_CRT_LINKAGE static)
 set(VCPKG_LIBRARY_LINKAGE static)
 set(VCPKG_CMAKE_SYSTEM_NAME Linux)
 
-set(CMAKE_C_COMPILER /usr/bin/clang-18)
-set(CMAKE_CXX_COMPILER /usr/bin/clang++-18)
+set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE ${CMAKE_CURRENT_LIST_DIR}/clang-toolchain.cmake)
