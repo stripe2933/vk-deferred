@@ -9,23 +9,28 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_MODULE_STD 1)
 
 # ----------------
+# Include CPM.cmake.
+# ----------------
+
+file(DOWNLOAD https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake
+)
+include(${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake)
+
+# ----------------
 # External dependencies.
 # ----------------
 
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 
-include(FetchContent)
-
-set(VKU_USE_STD_MODULE ON)
-FetchContent_Declare(
-    vku
-    GIT_REPOSITORY https://github.com/stripe2933/vku.git
+CPMAddPackage(
+    NAME vku
+    GITHUB_REPOSITORY stripe2933/vku
     GIT_TAG module
-    PATCH_COMMAND git apply ${CMAKE_CURRENT_BINARY_DIR}/_deps/vku-src/vcpkg-deps.patch
-    UPDATE_DISCONNECTED 1
+    PATCHES ${CMAKE_CURRENT_BINARY_DIR}/_deps/vku-src/vcpkg-deps.patch
+    OPTIONS "VKU_USE_STD_MODULE ON"
 )
-FetchContent_MakeAvailable(vku)
 
 # ----------------
 # Module configurations for external dependencies.
