@@ -28,16 +28,40 @@ This project depends on:
 
 ### Build Steps
 
-To install `vku`, refer to the repository's [README](https://github.com/stripe2933/vku/tree/module/README.md) and follow the instructions.
+### 1. Using vcpkg
+
+> [!TIP]
+> This project uses GitHub Runner to ensure build compatibility on both Linux and Windows, with dependency management handled by vcpkg. You can check the workflow files in the [.github/workflows](.github/workflows) folder.
+
+This project, along with its dependency `vku`, supports vcpkg for dependency management. Follow these steps to build the project:
 
 ```sh
 git clone https://github.com/stripe2933/vk-deferred
 cd vk-deferred
-cmake --preset=default # Or use your own CMakeUserPresets.json to override the configuration settings.
+cmake --preset=vcpkg # Or use your own configuration preset that inherits from the "vcpkg" preset.
 cmake --build build -t vk-deferred
 ```
 
 The executable will be located in the build folder.
+
+### 2. Manual Dependency Setup
+
+If your system already has the required dependencies installed, and the following CMake commands are available:
+
+```cmake
+find_package(VulkanMemoryAllocator REQUIRED)
+find_package(VulkanMemoryAllocator-Hpp REQUIRED)
+find_package(vku REQUIRED)
+```
+
+You can build the project with these commands:
+
+```sh
+git clone https://github.com/stripe2933/vk-deferred
+cd vk-deferred
+cmake --preset=default
+cmake --build build -t vk-deferred
+```
 
 ### Shader compilation
 
