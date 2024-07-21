@@ -37,30 +37,14 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      - name: Install vku
+      - name: Configure
         run: |
-          git clone https://github.com/stripe2933/vku.git
-          cd vku
-          git checkout module
-          git apply vcpkg-deps.patch
-          cmake -S . -B build -G Ninja \
+          cmake --preset=vcpkg \
             -DCMAKE_C_COMPILER="/usr/bin/clang-18" \
             -DCMAKE_CXX_COMPILER="/usr/bin/clang++-18" \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" \
             -DVCPKG_OVERLAY_PORTS=overlays \
-            -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
-            -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi" \
-            -DVKU_USE_STD_MODULE=ON
-          sudo cmake --build build --target install --config release
-
-      - name: Configure
-        run: |
-          mkdir build
-          cmake --preset=vcpkg \
-            -DCMAKE_C_COMPILER="/usr/bin/clang-18" \
-            -DCMAKE_CXX_COMPILER="/usr/bin/clang++-18" \
-            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" \
             -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
             -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
 
