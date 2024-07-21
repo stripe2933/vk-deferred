@@ -52,7 +52,7 @@ jobs:
       - name: Print log file if previous step failed
         if: ${{ failure() }}
         run: |
-          cat "/usr/local/share/vcpkg/buildtrees/vku/config-x64-linux-out.log"
+          cat "/usr/local/share/vcpkg/buildtrees/vku/config-x64-linux-clang-out.log"
 
       - name: Build
         run: cmake --build build --config release
