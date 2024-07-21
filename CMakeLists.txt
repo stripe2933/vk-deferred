@@ -28,7 +28,7 @@ CPMAddPackage(
     NAME vku
     GITHUB_REPOSITORY stripe2933/vku
     GIT_TAG module
-    PATCHES ${CMAKE_CURRENT_BINARY_DIR}/_deps/vku-src/vcpkg-deps.patch
+    $<$<BOOL:${USE_VCPKG}>:PATCHES ${CMAKE_CURRENT_BINARY_DIR}/_deps/vku-src/vcpkg-deps.patch> # Apply patch if USE_VCPKG enabled.
     OPTIONS "VKU_USE_STD_MODULE ON"
 )
 

@@ -1,5 +1,8 @@
 # vk-deferred
 
+![Linux](https://github.com/stripe2933/vk-deferred/actions/workflows/linux.yml/badge.svg)
+![Windows](https://github.com/stripe2933/vk-deferred/actions/workflows/windows.yml/badge.svg)
+
 ![Running screenshot](doc/images/running-screenshot.png)
 
 A minimal Vulkan deferred rendering demonstration.
@@ -8,7 +11,7 @@ A minimal Vulkan deferred rendering demonstration.
 
 This project requires support for C++20 modules and the C++23 standard library. The supported compiler is:
 - Clang 18.1.2
-- ~~MSVC 19.40 (Older versions may fail to compile due to various MSVC module bugs)~~ (currently being tested)
+- ~~MSVC 19.40 (Older versions may fail to compile due to various MSVC module bugs)~~ (currently not working with internal compiler error: I'll investigate it!)
 
 Additionally, the following build tools are required:
 - CMake 3.30
@@ -19,9 +22,9 @@ Additionally, the following build tools are required:
 This project depends on:
 - [GLFW](https://github.com/glfw/glfw)
 - [glm](https://github.com/g-truc/glm)
-- [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp)
-- [VulkanMemoryAllocator-Hpp](https://github.com/YaaZ/VulkanMemoryAllocator-Hpp)
-- My own Vulkan-Hpp helper library, [vku](https://github.com/stripe2933/vku/tree/module) (branch `module`)
+- My own Vulkan-Hpp helper library, [vku](https://github.com/stripe2933/vku/tree/module) (branch `module`), which has the following dependencies:
+  - [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp)
+  - [VulkanMemoryAllocator-Hpp](https://github.com/YaaZ/VulkanMemoryAllocator-Hpp)
 
 ### Build Steps
 

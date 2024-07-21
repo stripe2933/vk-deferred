@@ -13,7 +13,8 @@
       "inherits": "default",
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_OVERLAY_PORTS": "${sourceDir}/overlays"
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/overlays",
+        "USE_VCPKG": "ON"
       }
     }
   ]
