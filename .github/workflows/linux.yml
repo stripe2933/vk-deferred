@@ -44,7 +44,9 @@ jobs:
             -DCMAKE_CXX_COMPILER="/usr/bin/clang++-18" \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" \
-            -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=".github/workflows/x64-linux-clang.cmake" \
+            -DVCPKG_OVERLAY_TRIPLETS=".github/workflows/triplets" \
+            -DVCPKG_TARGET_TRIPLET="x64-linux-clang" \
+            -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=".github/workflows/triplets/clang-toolchain.cmake" \
             -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
             -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
 
