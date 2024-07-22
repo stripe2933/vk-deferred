@@ -100,9 +100,9 @@ namespace vk_deferred::vulkan {
                 {},
                 vku::unsafeProxy({
                     vk::KHRSwapchainExtensionName,
-    #if __APPLE__
-                    "VK_KHR_portability_subset",
-    #endif
+#if __APPLE__
+                    vk::KHRPortabilitySubsetExtensionName,
+#endif
                 }),
             } };
         }
