@@ -55,16 +55,25 @@ add_executable(vk-deferred main.cpp)
 target_sources(vk-deferred PRIVATE
     FILE_SET CXX_MODULES
     FILES
-        mod.cppm
-        attachment_groups.cppm
-        descriptor_set_layouts.cppm
-        Frame.cppm
-        Gpu.cppm
-        MainApp.cppm
-        meshes.cppm
-        pipelines.cppm
-        render_passes.cppm
-        SharedData.cppm
+        interface/mod.cppm
+        interface/MainApp.cppm
+        interface/vulkan/attachment_group/DeferredLightingAttachmentGroup.cppm
+        interface/vulkan/attachment_group/GBufferAttachmentGroup.cppm
+        interface/vulkan/attachment_group/SwapchainAttachmentGroup.cppm
+        interface/vulkan/descriptor_set_layout/DeferredLightRendererDescriptorSetLayout.cppm
+        interface/vulkan/descriptor_set_layout/ToneMappingRendererDescriptorSetLayout.cppm
+        interface/vulkan/Frame.cppm
+        interface/vulkan/Gpu.cppm
+        interface/vulkan/mesh/Floor.cppm
+        interface/vulkan/mesh/Sphere.cppm
+        interface/vulkan/buffer/FloorTransforms.cppm
+        interface/vulkan/buffer/LightInstances.cppm
+        interface/vulkan/buffer/SphereTransforms.cppm
+        interface/vulkan/pipeline/DeferredLightRenderer.cppm
+        interface/vulkan/pipeline/GBufferRenderer.cppm
+        interface/vulkan/pipeline/ToneMappingRenderer.cppm
+        interface/vulkan/render_pass/DeferredRenderPass.cppm
+        interface/vulkan/SharedData.cppm
 )
 target_link_libraries(vk-deferred PRIVATE
     glfw
@@ -72,5 +81,6 @@ target_link_libraries(vk-deferred PRIVATE
     vku::vku
 )
 target_compile_definitions(vk-deferred PRIVATE
+    GLFW_INCLUDE_NONE
     COMPILED_SHADER_DIR="${CMAKE_CURRENT_SOURCE_DIR}/shaders"
 )
