@@ -15,5 +15,8 @@
     },
     "vulkan-memory-allocator",
     "vulkan-memory-allocator-hpp"
-  ]
+  ],
+  "features": {
+    "std-module": { "description": "Use standard library module for the library compilation" }
+  }
 }

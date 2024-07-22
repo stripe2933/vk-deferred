@@ -12,7 +12,16 @@ vcpkg_from_github(
 # Module project doesn't use header files.
 set(VCPKG_POLICY_EMPTY_INCLUDE_FOLDER enabled)
 
-vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
+# Set CMake variables from the requested features.
+vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
+    FEATURES
+        std-module VKU_USE_STD_MODULE
+)
+
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
+    OPTIONS ${FEATURE_OPTIONS}
+)
 vcpkg_cmake_install()
 
 file(MAKE_DIRECTORY ${CURRENT_PACKAGES_DIR}/debug/share)
