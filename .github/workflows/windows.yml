@@ -19,11 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Enable Developer Command Prompt
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          toolset: 14.40
-
       - name: Install Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0
         with:
