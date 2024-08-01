@@ -32,15 +32,20 @@ namespace vk_deferred::vulkan {
         ) : gpu { gpu },
             sharedData { sharedData },
             lightInstanceBuffer { gpu.allocator, std::mt19937 { seed } } {
+            std::tie(gBufferInputDescriptorSet, hdrImageDescriptorSet)
+                = vku::allocateDescriptorSets(*gpu.device, *descriptorPool, std::tie(
+                    sharedData.gBufferInputDescriptorSetLayout,
+                    sharedData.hdrInputDescriptorSetLayout));
+
             // Update per-frame descriptors.
             gpu.device.updateDescriptorSets({
-                deferredLightingSet.getDescriptorWrite<0, 0>().setImageInfo(vku::unsafeProxy({
+                gBufferInputDescriptorSet.getWrite<0>(vku::unsafeProxy({
                     vk::DescriptorImageInfo { {}, *gbufferAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal },
                 })),
-                deferredLightingSet.getDescriptorWrite<0, 1>().setImageInfo(vku::unsafeProxy({
+                gBufferInputDescriptorSet.getWrite<1>(vku::unsafeProxy({
                     vk::DescriptorImageInfo { {}, *gbufferAttachmentGroup.colorAttachments[1].view, vk::ImageLayout::eShaderReadOnlyOptimal },
                 })),
-                toneMappingSet.getDescriptorWrite<0, 0>().setImageInfo(vku::unsafeProxy({
+                hdrImageDescriptorSet.getWrite<0>(vku::unsafeProxy({
                     vk::DescriptorImageInfo { {}, *deferredLightingAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal },
                 })),
             }, {});
@@ -110,7 +115,7 @@ namespace vk_deferred::vulkan {
 
             // 2nd subpass: lighting.
             commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *sharedData.deferredLightingRenderer.pipeline);
-            commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *sharedData.deferredLightingRenderer.pipelineLayout, 0, deferredLightingSet, {});
+            commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *sharedData.deferredLightingRenderer.pipelineLayout, 0, gBufferInputDescriptorSet, {});
             commandBuffer.pushConstants<DeferredLightingRenderer::PushConstant>(*sharedData.deferredLightingRenderer.pipelineLayout, vk::ShaderStageFlagBits::eAllGraphics, 0, DeferredLightingRenderer::PushConstant {
                 projectionView,
                 eye,
@@ -125,7 +130,7 @@ namespace vk_deferred::vulkan {
 
             // 3rd subpass: tone mapping.
             commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *sharedData.toneMappingRenderer.pipeline);
-            commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *sharedData.toneMappingRenderer.pipelineLayout, 0, toneMappingSet, {});
+            commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *sharedData.toneMappingRenderer.pipelineLayout, 0, hdrImageDescriptorSet, {});
             commandBuffer.draw(3, 1, 0, 0);
 
             commandBuffer.endRenderPass();
@@ -178,8 +183,8 @@ namespace vk_deferred::vulkan {
         // --------------------
 
         vk::raii::DescriptorPool descriptorPool = createDescriptorPool();
-        vku::DescriptorSets<DeferredLightRendererDescriptorSetLayout> deferredLightingSet { *gpu.device, *descriptorPool, sharedData.deferredLightRendererDescriptorSetLayout };
-        vku::DescriptorSets<ToneMappingRendererDescriptorSetLayout> toneMappingSet { *gpu.device, *descriptorPool, sharedData.toneMappingRendererDescriptorSetLayout };
+        vku::DescriptorSet<dsl::GBufferInput> gBufferInputDescriptorSet;
+        vku::DescriptorSet<dsl::HdrInput> hdrImageDescriptorSet;
 
         // --------------------
         // Command pools and buffers.
@@ -232,10 +237,9 @@ namespace vk_deferred::vulkan {
         }
 
         [[nodiscard]] auto createDescriptorPool() const -> vk::raii::DescriptorPool {
-            return { gpu.device, (
-                vku::PoolSizes { sharedData.deferredLightRendererDescriptorSetLayout }
-                + vku::PoolSizes { sharedData.toneMappingRendererDescriptorSetLayout }
-            ).getDescriptorPoolCreateInfo() };
+            return { gpu.device, getPoolSizes(
+                sharedData.gBufferInputDescriptorSetLayout,
+                sharedData.hdrInputDescriptorSetLayout).getDescriptorPoolCreateInfo() };
         }
 
         [[nodiscard]] auto createCommandPool() const -> vk::raii::CommandPool {

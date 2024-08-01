@@ -6,7 +6,7 @@ import std;
 export import glm;
 export import vulkan_hpp;
 import vku;
-export import :vulkan.descriptor_set_layout.DeferredLightRendererDescriptorSetLayout;
+export import :vulkan.dsl.GBufferInput;
 export import :vulkan.render_pass.DeferredRenderPass;
 
 namespace vk_deferred::vulkan::inline pipeline {
@@ -21,11 +21,11 @@ namespace vk_deferred::vulkan::inline pipeline {
 
         DeferredLightingRenderer(
             const vk::raii::Device &device [[clang::lifetimebound]],
-            const DeferredLightRendererDescriptorSetLayout &descriptorSetLayout [[clang::lifetimebound]],
+            const dsl::GBufferInput &descriptorSetLayout [[clang::lifetimebound]],
             const DeferredRenderPass &renderPass [[clang::lifetimebound]]
         ) : pipelineLayout { device, vk::PipelineLayoutCreateInfo {
                 {},
-                vku::unsafeProxy(descriptorSetLayout.getHandles()),
+                vku::unsafeProxy(*descriptorSetLayout),
                 vku::unsafeProxy({
                     vk::PushConstantRange { vk::ShaderStageFlagBits::eAllGraphics, 0, sizeof(PushConstant) },
                 }),

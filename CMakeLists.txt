@@ -60,8 +60,8 @@ target_sources(vk-deferred PRIVATE
         interface/vulkan/attachment_group/DeferredLightingAttachmentGroup.cppm
         interface/vulkan/attachment_group/GBufferAttachmentGroup.cppm
         interface/vulkan/attachment_group/SwapchainAttachmentGroup.cppm
-        interface/vulkan/descriptor_set_layout/DeferredLightRendererDescriptorSetLayout.cppm
-        interface/vulkan/descriptor_set_layout/ToneMappingRendererDescriptorSetLayout.cppm
+        interface/vulkan/dsl/GBufferInput.cppm
+        interface/vulkan/dsl/HdrInput.cppm
         interface/vulkan/Frame.cppm
         interface/vulkan/Gpu.cppm
         interface/vulkan/mesh/Floor.cppm

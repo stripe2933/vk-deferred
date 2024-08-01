@@ -32,8 +32,8 @@ namespace vk_deferred::vulkan {
         // Descriptor set layouts.
         // --------------------
 
-        DeferredLightRendererDescriptorSetLayout deferredLightRendererDescriptorSetLayout;
-        ToneMappingRendererDescriptorSetLayout toneMappingRendererDescriptorSetLayout;
+        dsl::GBufferInput gBufferInputDescriptorSetLayout;
+        dsl::HdrInput hdrInputDescriptorSetLayout;
 
         // --------------------
         // Pipelines.
@@ -58,11 +58,11 @@ namespace vk_deferred::vulkan {
         ) : swapchain { createSwapchain(gpu, surface) },
             swapchainImages { (*gpu.device).getSwapchainImagesKHR(*swapchain) },
             deferredRenderPass { gpu.device },
-            deferredLightRendererDescriptorSetLayout { gpu.device },
-            toneMappingRendererDescriptorSetLayout { gpu.device },
+            gBufferInputDescriptorSetLayout { gpu.device },
+            hdrInputDescriptorSetLayout { gpu.device },
             gbufferRenderer { gpu.device, deferredRenderPass },
-            deferredLightingRenderer { gpu.device, deferredLightRendererDescriptorSetLayout, deferredRenderPass },
-            toneMappingRenderer { gpu.device, toneMappingRendererDescriptorSetLayout, deferredRenderPass },
+            deferredLightingRenderer { gpu.device, gBufferInputDescriptorSetLayout, deferredRenderPass },
+            toneMappingRenderer { gpu.device, hdrInputDescriptorSetLayout, deferredRenderPass },
             sphereMesh { gpu.allocator },
             sphereTransforms { gpu.allocator },
             floorMesh { gpu.allocator },

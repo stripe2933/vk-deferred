@@ -1,15 +1,15 @@
-export module vk_deferred:vulkan.descriptor_set_layout.DeferredLightRendererDescriptorSetLayout;
+export module vk_deferred:vulkan.dsl.GBufferInput;
 
 #ifdef _MSC_VER
 import std;
 #endif
 import vku;
 
-namespace vk_deferred::vulkan::inline descriptor_set_layout {
-    export struct DeferredLightRendererDescriptorSetLayout final : vku::DescriptorSetLayouts<2> {
-        explicit DeferredLightRendererDescriptorSetLayout(
+namespace vk_deferred::vulkan::dsl {
+    export struct GBufferInput final : vku::DescriptorSetLayout<vk::DescriptorType::eInputAttachment, vk::DescriptorType::eInputAttachment> {
+        explicit GBufferInput(
             const vk::raii::Device &device [[clang::lifetimebound]]
-        ) : DescriptorSetLayouts {
+        ) : DescriptorSetLayout {
                 device,
                 vk::DescriptorSetLayoutCreateInfo {
                     {},
