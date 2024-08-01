@@ -1,15 +1,15 @@
-export module vk_deferred:vulkan.descriptor_set_layout.ToneMappingRendererDescriptorSetLayout;
+export module vk_deferred:vulkan.dsl.HdrInput;
 
 #ifdef _MSC_VER
 import std;
 #endif
 import vku;
 
-namespace vk_deferred::vulkan::inline descriptor_set_layout {
-    export struct ToneMappingRendererDescriptorSetLayout final : vku::DescriptorSetLayouts<1> {
-        explicit ToneMappingRendererDescriptorSetLayout(
+namespace vk_deferred::vulkan::dsl {
+    export struct HdrInput final : vku::DescriptorSetLayout<vk::DescriptorType::eInputAttachment> {
+        explicit HdrInput(
             const vk::raii::Device &device [[clang::lifetimebound]]
-        ) : DescriptorSetLayouts {
+        ) : DescriptorSetLayout {
                 device,
                 vk::DescriptorSetLayoutCreateInfo {
                     {},

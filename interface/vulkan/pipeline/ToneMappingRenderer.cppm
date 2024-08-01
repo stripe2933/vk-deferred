@@ -5,7 +5,7 @@ import std;
 #endif
 export import vulkan_hpp;
 import vku;
-export import :vulkan.descriptor_set_layout.ToneMappingRendererDescriptorSetLayout;
+export import :vulkan.dsl.HdrInput;
 export import :vulkan.render_pass.DeferredRenderPass;
 
 namespace vk_deferred::vulkan::inline pipeline {
@@ -15,11 +15,11 @@ namespace vk_deferred::vulkan::inline pipeline {
 
         ToneMappingRenderer(
             const vk::raii::Device &device [[clang::lifetimebound]],
-            const ToneMappingRendererDescriptorSetLayout &descriptorSetLayout [[clang::lifetimebound]],
+            const dsl::HdrInput &descriptorSetLayout [[clang::lifetimebound]],
             const DeferredRenderPass &renderPass [[clang::lifetimebound]]
         ) : pipelineLayout { device, vk::PipelineLayoutCreateInfo {
                 {},
-                vku::unsafeProxy(descriptorSetLayout.getHandles()),
+                vku::unsafeProxy(*descriptorSetLayout),
             } },
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
                 vku::createPipelineStages(
