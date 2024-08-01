@@ -3,6 +3,8 @@ module;
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include <vulkan/vulkan_hpp_macros.hpp>
+
 export module vk_deferred:MainApp;
 
 import std;
@@ -50,9 +52,10 @@ namespace vk_deferred {
 
             // Add Vulkan extensions for GLFW.
             std::uint32_t glfwExtensionCount;
-            extensions.append_range(std::views::counted(glfwGetRequiredInstanceExtensions(&glfwExtensionCount), glfwExtensionCount));
+            const auto* glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+            extensions.append_range(std::views::counted(glfwExtensions, glfwExtensionCount));
 
-            return { context, vk::InstanceCreateInfo {
+            vk::raii::Instance instance { context, vk::InstanceCreateInfo {
 #if __APPLE__
                 vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR,
 #else
@@ -72,6 +75,11 @@ namespace vk_deferred {
 #endif
                 extensions,
             } };
+
+#if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
+            VULKAN_HPP_DEFAULT_DISPATCHER.init(*instance);
+#endif
+            return instance;
         }
 
         [[nodiscard]] auto createSurface() const -> vk::raii::SurfaceKHR {

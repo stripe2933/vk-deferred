@@ -1,3 +1,7 @@
+module;
+
+#include <vulkan/vulkan_hpp_macros.hpp>
+
 export module vk_deferred:vulkan.SharedData;
 
 import std;
@@ -101,22 +105,25 @@ namespace vk_deferred::vulkan {
         auto recordAttachmentLayoutInitializationCommands(
             vk::CommandBuffer cb
         ) const -> void {
+            const std::vector barriers
+                = swapchainImages
+                | std::views::transform([](vk::Image image) {
+                    return vk::ImageMemoryBarrier{
+                        {}, {},
+                        {}, vk::ImageLayout::ePresentSrcKHR,
+                        vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
+                        image, vku::fullSubresourceRange(),
+                    };
+                })
+                | std::ranges::to<std::vector>();
+
             // Initialize the image layouts as desired end layout of the frame, for avoid the undefined layout for
             // initialLayout in render passes.
             cb.pipelineBarrier(
                 vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eBottomOfPipe,
                 {},
-                {}, {},
-                swapchainImages
-                    | std::views::transform([](vk::Image image) {
-                        return vk::ImageMemoryBarrier {
-                            {}, {},
-                            {}, vk::ImageLayout::ePresentSrcKHR,
-                            vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-                            image, vku::fullSubresourceRange(),
-                        };
-                    })
-                    | std::ranges::to<std::vector>());
+                // TODO: current MSVC C++20 module does not work well with vk::ArrayProxy<T>. Use it instead (and also inline) when fixed.
+                {}, {}, {}, {}, barriers.size(), barriers.data());
         }
     };
 }

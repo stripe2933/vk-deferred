@@ -19,7 +19,7 @@ namespace vk_deferred::vulkan::buffer {
         explicit LightInstances(
             vma::Allocator allocator,
             std::mt19937 randomGenerator
-        ) : MappedBuffer { allocator, std::from_range, std::views::iota(0U, instanceCount) | std::views::transform([&](auto) {
+        ) : MappedBuffer { allocator, std::from_range, std::views::iota(0U, instanceCount) | std::views::transform([&](std::uint32_t) {
             std::uniform_real_distribution radiusDist { 0.5f, 2.f };
             std::uniform_real_distribution hueDist { 0.f, 1.f };
             return InstanceType { .radius = radiusDist(randomGenerator), .color = hsvToRgb(hueDist(randomGenerator), 0.8f, 0.8f) };

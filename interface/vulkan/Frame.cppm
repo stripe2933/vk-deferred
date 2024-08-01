@@ -2,6 +2,8 @@ module;
 
 #include <cassert>
 
+#include <vulkan/vulkan_hpp_macros.hpp>
+
 export module vk_deferred:vulkan.Frame;
 
 import std;

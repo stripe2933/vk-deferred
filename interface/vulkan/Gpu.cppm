@@ -1,3 +1,7 @@
+module;
+
+#include <vulkan/vulkan_hpp_macros.hpp>
+
 export module vk_deferred:vulkan.Gpu;
 
 import std;
@@ -47,7 +51,7 @@ namespace vk_deferred::vulkan {
             vk::SurfaceKHR surface
         ) : physicalDevice { selectPhysicalDevice(instance, surface) },
             queueFamilies { physicalDevice, surface },
-            allocator { createAllocator(*instance) } { }
+            allocator { createAllocator(instance) } { }
 
         ~Gpu() {
             allocator.destroy();
@@ -88,7 +92,7 @@ namespace vk_deferred::vulkan {
         }
 
         [[nodiscard]] auto createDevice() const -> vk::raii::Device {
-            return { physicalDevice, vk::DeviceCreateInfo {
+            vk::raii::Device device { physicalDevice, vk::DeviceCreateInfo {
                 {},
                 vku::unsafeProxy({
                     vk::DeviceQueueCreateInfo {
@@ -105,14 +109,27 @@ namespace vk_deferred::vulkan {
 #endif
                 }),
             } };
+
+#if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
+            VULKAN_HPP_DEFAULT_DISPATCHER.init(*device);
+#endif
+            return device;
         }
 
-        [[nodiscard]] auto createAllocator(vk::Instance instance) const -> vma::Allocator {
+        [[nodiscard]] auto createAllocator(const vk::raii::Instance &instance) const -> vma::Allocator {
             return vma::createAllocator(vma::AllocatorCreateInfo {
                 {},
                 *physicalDevice, *device,
-                {}, {}, {}, {}, {},
-                instance, vk::makeApiVersion(0, 1, 2, 0),
+                {}, {}, {}, {},
+#if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
+                vku::unsafeAddress(vma::VulkanFunctions{
+                    instance.getDispatcher()->vkGetInstanceProcAddr,
+                    device.getDispatcher()->vkGetDeviceProcAddr,
+                }),
+#else
+                {},
+#endif
+                *instance, vk::makeApiVersion(0, 1, 2, 0),
             });
         }
     };

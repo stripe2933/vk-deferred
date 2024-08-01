@@ -1,5 +1,8 @@
 export module vk_deferred:vulkan.attachment_group.SwapchainAttachmentGroup;
 
+#ifdef _MSC_VER
+import std;
+#endif
 export import vku;
 
 namespace vk_deferred::vulkan::inline attachment_group {
