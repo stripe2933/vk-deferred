@@ -7,14 +7,14 @@ import vku;
 
 namespace vk_deferred::vulkan::mesh {
     export struct Sphere {
-        vku::MappedBuffer vertexBuffer;
-        vku::MappedBuffer indexBuffer;
+        vku::AllocatedBuffer vertexBuffer;
+        vku::AllocatedBuffer indexBuffer;
 
         static constexpr std::uint32_t drawCount = 3840;
 
         explicit Sphere(
             vma::Allocator allocator
-        ) : vertexBuffer { allocator, std::from_range, std::vector<glm::vec3> {
+        ) : vertexBuffer { vku::MappedBuffer { allocator, std::from_range, std::vector<glm::vec3> {
                 { 0.0000, 0.0000, 1.0000 }, { 0.0000, 0.0000, 1.0000 },
                 { 0.8944, 0.0000, 0.4472 }, { 0.8944, 0.0000, 0.4472 },
                 { 0.2764, 0.8507, 0.4472 }, { 0.2764, 0.8507, 0.4472 },
@@ -657,8 +657,8 @@ namespace vk_deferred::vulkan::mesh {
                 { 0.5665, -0.0823, -0.8199 }, { 0.5665, -0.0823, -0.8199 },
                 { 0.5665, 0.0823, -0.8199 }, { 0.5665, 0.0823, -0.8199 },
                 { 0.6799, 0.0000, -0.7333 }, { 0.6799, 0.0000, -0.7333 },
-            }, vk::BufferUsageFlagBits::eVertexBuffer },
-            indexBuffer { allocator, std::from_range, std::vector<std::uint16_t> {
+            }, vk::BufferUsageFlagBits::eVertexBuffer }.unmap() },
+            indexBuffer { vku::MappedBuffer { allocator, std::from_range, std::vector<std::uint16_t> {
                 0, 162, 164, 162, 42, 163, 164, 163, 44, 162, 163, 164,
                 42, 165, 167, 165, 12, 166, 167, 166, 43, 165, 166, 167,
                 44, 168, 170, 168, 43, 169, 170, 169, 14, 168, 169, 170,
@@ -979,6 +979,6 @@ namespace vk_deferred::vulkan::mesh {
                 160, 633, 640, 633, 37, 636, 640, 636, 161, 633, 636, 640,
                 159, 641, 628, 641, 161, 634, 628, 634, 36, 641, 634, 628,
                 160, 640, 639, 640, 161, 641, 639, 641, 159, 640, 641, 639,
-            }, vk::BufferUsageFlagBits::eIndexBuffer } { }
+            }, vk::BufferUsageFlagBits::eIndexBuffer }.unmap() } { }
     };
 }

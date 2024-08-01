@@ -14,23 +14,13 @@ namespace vk_deferred::vulkan::inline attachment_group {
                 gpu.allocator,
                 vk::Format::eR32G32B32A32Sfloat, // Alpha component will not be in use.
                 vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment | vk::ImageUsageFlagBits::eTransientAttachment,
-                vma::AllocationCreateInfo {
-                    {},
-                    vma::MemoryUsage::eAutoPreferDevice,
-                    {},
-                    vk::MemoryPropertyFlagBits::eLazilyAllocated,
-                })));
+                vku::allocation::deviceLocalTransient)));
             // Normal.
             addColorAttachment(gpu.device, storeImage(createColorImage(
                 gpu.allocator,
                 vk::Format::eA2B10G10R10UnormPack32, // [-1, 1] -> [0, 1] projected. Alpha component will not be in use.
                 vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment | vk::ImageUsageFlagBits::eTransientAttachment,
-                vma::AllocationCreateInfo {
-                    {},
-                    vma::MemoryUsage::eAutoPreferDevice,
-                    {},
-                    vk::MemoryPropertyFlagBits::eLazilyAllocated,
-                })));
+                vku::allocation::deviceLocalTransient)));
             // Depth/stencil (drawn fragment will filled with stencil=1).
             setDepthStencilAttachment(gpu.device, storeImage(createDepthStencilImage(
                 gpu.allocator,

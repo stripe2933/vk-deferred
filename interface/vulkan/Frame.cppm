@@ -62,7 +62,7 @@ namespace vk_deferred::vulkan {
 
             constexpr glm::vec3 eye { 10.f, 10.f, -10.f };
             const glm::mat4 projectionView
-                = glm::perspective(glm::radians(45.f), static_cast<float>(sharedData.swapchainExtent.width) / sharedData.swapchainExtent.height, 0.1f, 100.f)
+                = glm::perspective(glm::radians(45.f), vku::aspect(sharedData.swapchainExtent), 0.1f, 100.f)
                 * lookAt(eye, glm::vec3 { 0.f }, { 0.f, 1.f, 0.f });
 
             lightInstanceBuffer.update(time);

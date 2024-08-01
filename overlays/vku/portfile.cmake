@@ -3,8 +3,8 @@ vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO stripe2933/vku
-    REF v0.1.0-test9
-    SHA512 dd045a11391a9c97ea1b2a0019d95d24be2150c6d6dd65d54db65a2b57fa4a1dd326245fe21da5170df9958df6ef963956d945f6e4b89cdf7f812bb4731579b8
+    REF v0.1.0-test14
+    SHA512 e13921e0a3b1bef9e55a441b9e831f573671b9f2b21f1955354a627e3832fe693f7edfcf1937d75ddc82155ed557c38d9af8bb37442b643a50d5e140a382338b
     HEAD_REF module
     PATCHES vcpkg-deps.patch
 )
@@ -16,6 +16,8 @@ set(VCPKG_POLICY_EMPTY_INCLUDE_FOLDER enabled)
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
     FEATURES
         std-module VKU_USE_STD_MODULE
+        shaderc VKU_USE_SHADERC
+        dynamic-dispatcher VKU_DEFAULT_DYNAMIC_DISPATCHER
 )
 
 vcpkg_cmake_configure(

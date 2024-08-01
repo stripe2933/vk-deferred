@@ -14,12 +14,7 @@ namespace vk_deferred::vulkan::inline attachment_group {
                 gpu.allocator,
                 vk::Format::eB10G11R11UfloatPack32, // Use high-bit floats to represent HDR.
                 vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment | vk::ImageUsageFlagBits::eTransientAttachment,
-                vma::AllocationCreateInfo {
-                    {},
-                    vma::MemoryUsage::eAutoPreferDevice,
-                    {},
-                    vk::MemoryPropertyFlagBits::eLazilyAllocated,
-                })));
+                vku::allocation::deviceLocalTransient)));
             setDepthStencilAttachment(gpu.device, depthStencilImage);
         }
     };
