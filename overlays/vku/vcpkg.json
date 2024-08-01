@@ -17,6 +17,8 @@
     "vulkan-memory-allocator-hpp"
   ],
   "features": {
-    "std-module": { "description": "Use standard library module for the library compilation" }
+    "std-module": { "description": "Use standard library module for the library compilation" },
+    "shaderc": { "description": "Enable runtime GLSL compilation feature using shaderc" },
+    "dynamic-dispatcher": { "description": "Use vk::DispatchLoaderDynamic as the default dispatcher" }
   }
 }

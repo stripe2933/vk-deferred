@@ -14,17 +14,17 @@ namespace vk_deferred::vulkan::mesh {
 
         static constexpr std::uint32_t drawCount = 6;
 
-        vku::MappedBuffer vertexBuffer;
+        vku::AllocatedBuffer vertexBuffer;
 
         explicit Floor(
             vma::Allocator allocator
-        ) : vertexBuffer { allocator, std::from_range, std::array<VertexType, drawCount> {
+        ) : vertexBuffer { vku::MappedBuffer { allocator, std::from_range, std::array<VertexType, drawCount> {
                 VertexType { { -25.f, 0.f, -25.f }, { 0.f, 1.f, 0.f } },
                 VertexType { { -25.f, 0.f,  25.f }, { 0.f, 1.f, 0.f } },
                 VertexType { {  25.f, 0.f,  25.f }, { 0.f, 1.f, 0.f } },
                 VertexType { { -25.f, 0.f, -25.f }, { 0.f, 1.f, 0.f } },
                 VertexType { {  25.f, 0.f,  25.f }, { 0.f, 1.f, 0.f } },
                 VertexType { {  25.f, 0.f, -25.f }, { 0.f, 1.f, 0.f } },
-            }, vk::BufferUsageFlagBits::eVertexBuffer } { }
+            }, vk::BufferUsageFlagBits::eVertexBuffer }.unmap() } { }
     };
 }
