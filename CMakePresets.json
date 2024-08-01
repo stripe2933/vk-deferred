@@ -11,8 +11,8 @@
       "name": "vcpkg",
       "displayName": "vcpkg-based dependency management",
       "inherits": "default",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_OVERLAY_PORTS": "${sourceDir}/overlays"
       }
     }
