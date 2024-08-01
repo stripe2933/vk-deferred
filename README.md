@@ -11,7 +11,7 @@ A minimal Vulkan deferred rendering demonstration.
 
 This project requires support for C++20 modules and the C++23 standard library. The supported compiler is:
 - Clang 18.1.2
-- ~~MSVC 19.40 (Older versions may fail to compile due to various MSVC module bugs)~~ (currently not working with internal compiler error: I'll investigate it!)
+- MSVC 19.40
 
 Additionally, the following build tools are required:
 - CMake 3.30
