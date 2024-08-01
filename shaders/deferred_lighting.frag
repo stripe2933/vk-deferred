@@ -26,7 +26,10 @@ float square(float x) {
 void main(){
     vec3 fragPosition = subpassLoad(inputPosition).xyz;
     float lightDistance = length(fragInstancePosition - fragPosition);
-    if (lightDistance > fragInstanceRadius) return;
+    if (lightDistance > fragInstanceRadius) {
+        outColor = vec3(0.0);
+        return;
+    }
 
     float attenuation = square(lightDistance / fragInstanceRadius - 1.0);
     vec3 lightColor = fragInstanceColor * attenuation;
