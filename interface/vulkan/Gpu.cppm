@@ -140,7 +140,7 @@ namespace vku {
      * This is useful for compute based window rendering, because it doesn't requires the explicit queue family ownership
      * transfer between compute and present queues.
      */
-    [[nodiscard]] auto getGraphicsPresentQueueFamily(
+    [[nodiscard]] auto getComputePresentQueueFamily(
         vk::PhysicalDevice physicalDevice,
         vk::SurfaceKHR surface,
         std::span<const vk::QueueFamilyProperties> queueFamilyProperties
@@ -269,10 +269,6 @@ namespace vku {
                 }
             }
 
-            if (verbose) {
-                std::println(std::cerr, "Physical device \"{}\" accepted.", deviceName);
-            }
-
             std::uint32_t score = 0;
             if (properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {
                 score += 1000;
@@ -280,27 +276,30 @@ namespace vku {
 
             score += properties.limits.maxImageDimension2D;
 
+            if (verbose) {
+                std::println(std::cerr, "Physical device \"{}\" accepted (score={}).", deviceName, score);
+            }
             return score;
         }
 
     public:
         template <typename... DevicePNexts>
         struct Config {
-            static constexpr bool hasPhysicalDeviceFeatures = one_of<vk::PhysicalDeviceFeatures2, DevicePNexts...>;
+            static constexpr bool hasPhysicalDeviceFeatures = !one_of<vk::PhysicalDeviceFeatures2, DevicePNexts...>;
 
             bool verbose = false;
             std::vector<const char*> deviceExtensions = {};
             [[no_unique_address]]
-            std::conditional_t<hasPhysicalDeviceFeatures, std::monostate, vk::PhysicalDeviceFeatures> physicalDeviceFeatures = {};
+            std::conditional_t<hasPhysicalDeviceFeatures, vk::PhysicalDeviceFeatures, std::monostate> physicalDeviceFeatures = {};
             std::function<QueueFamilies(vk::PhysicalDevice)> queueFamilyGetter = &getQueueFamilies;
             std::function<std::uint32_t(vk::PhysicalDevice)> physicalDeviceRater
                 // TODO.CXX23: use std::bind_back for readability.
                 = [this](vk::PhysicalDevice physicalDevice) {
                     if constexpr (hasPhysicalDeviceFeatures) {
-                        return ratePhysicalDevice(physicalDevice, verbose, queueFamilyGetter, deviceExtensions);
+                        return ratePhysicalDevice(physicalDevice, verbose, queueFamilyGetter, deviceExtensions, &physicalDeviceFeatures);
                     }
                     else {
-                        return ratePhysicalDevice(physicalDevice, verbose, queueFamilyGetter, deviceExtensions, &physicalDeviceFeatures);
+                        return ratePhysicalDevice(physicalDevice, verbose, queueFamilyGetter, deviceExtensions);
                     }
                 };
             std::tuple<DevicePNexts...> devicePNexts = {};
@@ -351,23 +350,32 @@ namespace vku {
         [[nodiscard]] auto createDevice(
             const Config<PNexts...> &config
         ) const -> vk::raii::Device {
-            vk::raii::Device device { physicalDevice, std::apply([&](auto ...pNexts) {
+            // This have to be here, because after end of the RefHolder::get() expression, queue priorities are
+            // destroyed (which makes the pointer to them becomes invalid), but it is still in the std::apply scope.
+            const auto queueCreateInfos = Queues::getCreateInfos(*physicalDevice, queueFamilies);
+            vk::raii::Device device { physicalDevice, std::apply([&](const auto &...pNexts) {
                 const vk::PhysicalDeviceFeatures *pPhysicalDeviceFeatures = nullptr;
-                if constexpr (decltype(config)::hasPhysicalDeviceFeatures) {
+                if constexpr (Config<PNexts...>::hasPhysicalDeviceFeatures) {
                     pPhysicalDeviceFeatures = &config.physicalDeviceFeatures;
                 }
 
-                return vk::StructureChain {
+                /* Note:
+                 * Directly returning vk::StructureChain will cause runtime error, because pNexts pointer chain gets
+                 * invalidated. Creating non-const result value and returning it works because of the RVO. After C++17,
+                 * RVO is guaranteed by the standard. */
+                vk::StructureChain createInfo {
                     vk::DeviceCreateInfo {
                         {},
-                        vku::unsafeProxy(Queues::getCreateInfos(*physicalDevice, queueFamilies).get()),
+                        queueCreateInfos.get(),
                         {},
                         config.deviceExtensions,
                         pPhysicalDeviceFeatures,
                     },
-                    std::move(pNexts)...,
+                    pNexts...,
                 };
-            }, std::move(config.devicePNexts)).get() };
+
+                return createInfo;
+            }, config.devicePNexts).get() };
 
 #if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
             VULKAN_HPP_DEFAULT_DISPATCHER.init(*device);
