@@ -1,5 +1,7 @@
 module;
 
+#include <version>
+
 #include <vulkan/vulkan_hpp_macros.hpp>
 
 export module vk_deferred:vulkan.Gpu;
@@ -185,17 +187,26 @@ namespace vku {
             }
 
             // Check device extension availability.
-            std::vector availableExtensions
-                = physicalDevice.enumerateDeviceExtensionProperties()
-                | std::views::transform([](const vk::ExtensionProperties &properties) { return std::string_view { properties.extensionName }; })
-                | std::ranges::to<std::vector>();
-            if (!std::ranges::includes(availableExtensions, deviceExtensions)) {
+            constexpr auto toCStr = [](const vk::ExtensionProperties& properties) { return properties.extensionName.data(); };
+            std::vector availableExtensions = physicalDevice.enumerateDeviceExtensionProperties();
+            std::ranges::sort(availableExtensions, std::strcmp, toCStr);
+            if (!std::ranges::includes(availableExtensions, deviceExtensions, std::strcmp, toCStr)) {
                 if (verbose) {
-                    std::vector<std::string_view> unavailableExtensions;
-                    std::ranges::set_difference(
-                        deviceExtensions, availableExtensions, std::back_inserter(unavailableExtensions),
-                        {}, [](auto str) { return std::string_view { str }; });
+                    std::vector<const char*> unavailableExtensions;
+                    std::ranges::set_difference(deviceExtensions, availableExtensions | std::views::transform(toCStr), std::back_inserter(unavailableExtensions), std::strcmp);
+#if __cpp_lib_format_ranges >= 202207L
                     std::println(std::cerr, "Physical device \"{}\" rejected because it lacks the following device extensions: {::s}", deviceName, unavailableExtensions);
+#else
+                    std::print(std::cerr, "Physical device \"{}\" rejected because it lacks the following device extensions: [", deviceName);
+                    for (std::size_t i = 0; i < unavailableExtensions.size(); ++i) {
+                        if (i == unavailableExtensions.size() - 1) {
+                            std::println(std::cerr, "{}]", unavailableExtensions[i]);
+                }
+                        else {
+                            std::print(std::cerr, "{}, ", unavailableExtensions[i]);
+                        }
+                    }
+#endif
                 }
                 return 0;
             }
@@ -263,7 +274,19 @@ namespace vku {
 
                 if (!unavailableFeatures.empty()) {
                     if (verbose) {
+#if __cpp_lib_format_ranges >= 202207L
                         std::println(std::cerr, "Physical device \"{}\" rejected because it lacks the following physical device features: {::s}", deviceName, unavailableFeatures);
+#else
+                        std::print(std::cerr, "Physical device \"{}\" rejected because it lacks the following physical device features: [", deviceName);
+                        for (std::size_t i = 0; i < unavailableFeatures.size(); ++i) {
+                            if (i == unavailableFeatures.size() - 1) {
+                                std::println(std::cerr, "{}]", unavailableFeatures[i]);
+                    }
+                            else {
+                                std::print(std::cerr, "{}, ", unavailableFeatures[i]);
+                            }
+                        }
+#endif
                     }
                     return 0;
                 }
