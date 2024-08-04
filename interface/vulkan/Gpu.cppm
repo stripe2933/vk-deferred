@@ -357,16 +357,12 @@ namespace vku {
         ) const -> vk::raii::PhysicalDevice {
             std::ranges::sort(config.deviceExtensions);
 
-            auto adequatePhysicalDevices
-                = instance.enumeratePhysicalDevices()
-                | std::views::filter([&](vk::PhysicalDevice physicalDevice) {
-                    return config.physicalDeviceRater(physicalDevice) > 0;
-                });
-            if (adequatePhysicalDevices.empty()) {
-                throw std::runtime_error { "No suitable GPU for the application" };
+            std::vector physicalDevices = instance.enumeratePhysicalDevices();
+            vk::raii::PhysicalDevice bestPhysicalDevice = *std::ranges::max_element(physicalDevices, {}, config.physicalDeviceRater);
+            if (config.physicalDeviceRater(*bestPhysicalDevice) == 0) {
+                throw std::runtime_error { "No suitable GPU for the application." };
             }
-
-            return *std::ranges::max_element(adequatePhysicalDevices, {}, config.physicalDeviceRater);
+            return bestPhysicalDevice;
         }
 
         template <typename... PNexts>
