@@ -1,7 +1,5 @@
 module;
 
-#include <version>
-
 #include <vulkan/vulkan_hpp_macros.hpp>
 
 export module vk_deferred:vulkan.Gpu;
