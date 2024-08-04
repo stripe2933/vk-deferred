@@ -16,7 +16,7 @@ namespace vk_deferred::vulkan::buffer {
 
         static constexpr std::uint32_t instanceCount = 1500;
 
-        explicit LightInstances(
+        LightInstances(
             vma::Allocator allocator,
             std::mt19937 randomGenerator
         ) : MappedBuffer { allocator, std::from_range, std::views::iota(0U, instanceCount) | std::views::transform([&](std::uint32_t) {

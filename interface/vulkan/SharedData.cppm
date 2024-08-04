@@ -56,7 +56,7 @@ namespace vk_deferred::vulkan {
         mesh::Floor floorMesh;
         buffer::FloorTransforms floorTransforms;
 
-        explicit SharedData(
+        SharedData(
             const Gpu &gpu [[clang::lifetimebound]],
             vk::SurfaceKHR surface
         ) : swapchain { createSwapchain(gpu, surface) },
