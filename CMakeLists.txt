@@ -9,15 +9,6 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_MODULE_STD 1)
 
 # ----------------
-# Include CPM.cmake.
-# ----------------
-
-file(DOWNLOAD https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake
-)
-include(${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake)
-
-# ----------------
 # External dependencies.
 # ----------------
 
