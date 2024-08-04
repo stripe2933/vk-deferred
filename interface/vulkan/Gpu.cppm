@@ -11,7 +11,7 @@ import vku;
 export import vulkan_hpp;
 
 #define FWD(...) static_cast<decltype(__VA_ARGS__)&&>(__VA_ARGS__)
-#define CHECK_FEATURE(feature) if (physicalDeviceFeatures->feature && !availableFeatures.feature) { unavailableFeatures.push_back(#feature); }
+#define CHECK_FEATURE(feature) if (pPhysicalDeviceFeatures->feature && !availableFeatures.feature) { unavailableFeatures.push_back(#feature); }
 
 template <typename T, typename... Ts>
 concept one_of = (std::same_as<T, Ts> || ...);
@@ -165,147 +165,161 @@ namespace vku {
             return QueueFamilies { physicalDevice };
         }
 
-        [[nodiscard]] static auto ratePhysicalDevice(
-            vk::PhysicalDevice physicalDevice,
-            bool verbose,
-            const std::function<QueueFamilies(vk::PhysicalDevice)> &queueFamilyGetter,
-            std::span<const char* const> deviceExtensions,
-            const vk::PhysicalDeviceFeatures *physicalDeviceFeatures = nullptr
-        ) -> std::uint32_t {
-            const vk::PhysicalDeviceProperties properties = physicalDevice.getProperties();
-            const std::string_view deviceName { properties.deviceName.data() };
+    public:
+        struct DefaultPhysicalDeviceRater {
+            bool verbose;
+            std::function<QueueFamilies(vk::PhysicalDevice)> queueFamilyGetter;
+            std::span<const char* const> deviceExtensions;
+            const vk::PhysicalDeviceFeatures *pPhysicalDeviceFeatures = nullptr;
 
-            // Check queue family availability.
-            try {
-                std::ignore = queueFamilyGetter(physicalDevice);
-            }
-            catch (const std::runtime_error &e) {
-                if (verbose) {
-                    std::println(std::cerr, "Physical device \"{}\" rejected because it failed to get the request queue families: {}", deviceName, e.what());
+            [[nodiscard]] auto operator()(vk::PhysicalDevice physicalDevice) const -> std::uint32_t {
+                const vk::PhysicalDeviceProperties properties = physicalDevice.getProperties();
+                const std::string_view deviceName { properties.deviceName.data() };
+
+                // Check queue family availability.
+                try {
+                    std::ignore = queueFamilyGetter(physicalDevice);
                 }
-                return 0;
-            }
-
-            // Check device extension availability.
-            constexpr auto toCStr = [](const vk::ExtensionProperties& properties) { return properties.extensionName.data(); };
-            std::vector availableExtensions = physicalDevice.enumerateDeviceExtensionProperties();
-            std::ranges::sort(availableExtensions, std::strcmp, toCStr);
-            if (!std::ranges::includes(availableExtensions, deviceExtensions, std::strcmp, toCStr)) {
-                if (verbose) {
-                    std::vector<const char*> unavailableExtensions;
-                    std::ranges::set_difference(deviceExtensions, availableExtensions | std::views::transform(toCStr), std::back_inserter(unavailableExtensions), std::strcmp);
-#if __cpp_lib_format_ranges >= 202207L
-                    std::println(std::cerr, "Physical device \"{}\" rejected because it lacks the following device extensions: {::s}", deviceName, unavailableExtensions);
-#else
-                    std::print(std::cerr, "Physical device \"{}\" rejected because it lacks the following device extensions: [", deviceName);
-                    for (std::size_t i = 0; i < unavailableExtensions.size(); ++i) {
-                        if (i == unavailableExtensions.size() - 1) {
-                            std::println(std::cerr, "{}]", unavailableExtensions[i]);
-                }
-                        else {
-                            std::print(std::cerr, "{}, ", unavailableExtensions[i]);
-                        }
-                    }
-#endif
-                }
-                return 0;
-            }
-
-            // Check physical device feature availability.
-            const vk::PhysicalDeviceFeatures availableFeatures = physicalDevice.getFeatures();
-            if (physicalDeviceFeatures) {
-                // I hope vk::PhysicalDeviceFeatures struct does not change in the future...
-                std::vector<const char*> unavailableFeatures;
-                CHECK_FEATURE(robustBufferAccess);
-                CHECK_FEATURE(fullDrawIndexUint32);
-                CHECK_FEATURE(imageCubeArray);
-                CHECK_FEATURE(independentBlend);
-                CHECK_FEATURE(geometryShader);
-                CHECK_FEATURE(tessellationShader);
-                CHECK_FEATURE(sampleRateShading);
-                CHECK_FEATURE(dualSrcBlend);
-                CHECK_FEATURE(logicOp);
-                CHECK_FEATURE(multiDrawIndirect);
-                CHECK_FEATURE(drawIndirectFirstInstance);
-                CHECK_FEATURE(depthClamp);
-                CHECK_FEATURE(depthBiasClamp);
-                CHECK_FEATURE(fillModeNonSolid);
-                CHECK_FEATURE(depthBounds);
-                CHECK_FEATURE(wideLines);
-                CHECK_FEATURE(largePoints);
-                CHECK_FEATURE(alphaToOne);
-                CHECK_FEATURE(multiViewport);
-                CHECK_FEATURE(samplerAnisotropy);
-                CHECK_FEATURE(textureCompressionETC2);
-                CHECK_FEATURE(textureCompressionASTC_LDR);
-                CHECK_FEATURE(textureCompressionBC);
-                CHECK_FEATURE(occlusionQueryPrecise);
-                CHECK_FEATURE(pipelineStatisticsQuery);
-                CHECK_FEATURE(vertexPipelineStoresAndAtomics);
-                CHECK_FEATURE(fragmentStoresAndAtomics);
-                CHECK_FEATURE(shaderTessellationAndGeometryPointSize);
-                CHECK_FEATURE(shaderImageGatherExtended);
-                CHECK_FEATURE(shaderStorageImageExtendedFormats);
-                CHECK_FEATURE(shaderStorageImageMultisample);
-                CHECK_FEATURE(shaderStorageImageReadWithoutFormat);
-                CHECK_FEATURE(shaderStorageImageWriteWithoutFormat);
-                CHECK_FEATURE(shaderUniformBufferArrayDynamicIndexing);
-                CHECK_FEATURE(shaderSampledImageArrayDynamicIndexing);
-                CHECK_FEATURE(shaderStorageBufferArrayDynamicIndexing);
-                CHECK_FEATURE(shaderStorageImageArrayDynamicIndexing);
-                CHECK_FEATURE(shaderClipDistance);
-                CHECK_FEATURE(shaderCullDistance);
-                CHECK_FEATURE(shaderFloat64);
-                CHECK_FEATURE(shaderInt64);
-                CHECK_FEATURE(shaderInt16);
-                CHECK_FEATURE(shaderResourceResidency);
-                CHECK_FEATURE(shaderResourceMinLod);
-                CHECK_FEATURE(sparseBinding);
-                CHECK_FEATURE(sparseResidencyBuffer);
-                CHECK_FEATURE(sparseResidencyImage2D);
-                CHECK_FEATURE(sparseResidencyImage3D);
-                CHECK_FEATURE(sparseResidency2Samples);
-                CHECK_FEATURE(sparseResidency4Samples);
-                CHECK_FEATURE(sparseResidency8Samples);
-                CHECK_FEATURE(sparseResidency16Samples);
-                CHECK_FEATURE(sparseResidencyAliased);
-                CHECK_FEATURE(variableMultisampleRate);
-                CHECK_FEATURE(inheritedQueries);
-
-                if (!unavailableFeatures.empty()) {
+                catch (const std::runtime_error &e) {
                     if (verbose) {
-#if __cpp_lib_format_ranges >= 202207L
-                        std::println(std::cerr, "Physical device \"{}\" rejected because it lacks the following physical device features: {::s}", deviceName, unavailableFeatures);
-#else
-                        std::print(std::cerr, "Physical device \"{}\" rejected because it lacks the following physical device features: [", deviceName);
-                        for (std::size_t i = 0; i < unavailableFeatures.size(); ++i) {
-                            if (i == unavailableFeatures.size() - 1) {
-                                std::println(std::cerr, "{}]", unavailableFeatures[i]);
+                        std::println(std::cerr, "Physical device \"{}\" rejected because it failed to get the request queue families: {}", deviceName, e.what());
                     }
+                    return 0;
+                }
+
+                // Check device extension availability.
+                const std::vector availableExtensions = physicalDevice.enumerateDeviceExtensionProperties();
+
+                constexpr auto toStringView = [](const auto &str) { return std::string_view { str }; };
+                std::vector availableExtensionNames
+                    = availableExtensions
+                    | std::views::transform(&vk::ExtensionProperties::extensionName)
+                    | std::views::transform(toStringView)
+                    | std::ranges::to<std::vector>();
+                std::ranges::sort(availableExtensionNames);
+
+                std::vector deviceExtensionNames
+                    = deviceExtensions
+                    | std::views::transform(toStringView)
+                    | std::ranges::to<std::vector>();
+                std::ranges::sort(deviceExtensionNames);
+
+                if (!std::ranges::includes(availableExtensionNames, deviceExtensionNames)) {
+                    if (verbose) {
+                        std::vector<std::string_view> unavailableExtensions;
+                        std::ranges::set_difference(deviceExtensionNames, availableExtensionNames, std::back_inserter(unavailableExtensions));
+#if __cpp_lib_format_ranges >= 202207L
+                        std::println(std::cerr, "Physical device \"{}\" rejected because it lacks the following device extensions: {::s}", deviceName, unavailableExtensions);
+#else
+                        std::print(std::cerr, "Physical device \"{}\" rejected because it lacks the following device extensions: [", deviceName);
+                        for (std::size_t i = 0; i < unavailableExtensions.size(); ++i) {
+                            if (i == unavailableExtensions.size() - 1) {
+                                std::println(std::cerr, "{}]", unavailableExtensions[i]);
+                            }
                             else {
-                                std::print(std::cerr, "{}, ", unavailableFeatures[i]);
+                                std::print(std::cerr, "{}, ", unavailableExtensions[i]);
                             }
                         }
 #endif
                     }
                     return 0;
                 }
+
+                // Check physical device feature availability.
+                const vk::PhysicalDeviceFeatures availableFeatures = physicalDevice.getFeatures();
+                if (pPhysicalDeviceFeatures) {
+                    // I hope vk::PhysicalDeviceFeatures struct does not change in the future...
+                    std::vector<const char*> unavailableFeatures;
+                    CHECK_FEATURE(robustBufferAccess);
+                    CHECK_FEATURE(fullDrawIndexUint32);
+                    CHECK_FEATURE(imageCubeArray);
+                    CHECK_FEATURE(independentBlend);
+                    CHECK_FEATURE(geometryShader);
+                    CHECK_FEATURE(tessellationShader);
+                    CHECK_FEATURE(sampleRateShading);
+                    CHECK_FEATURE(dualSrcBlend);
+                    CHECK_FEATURE(logicOp);
+                    CHECK_FEATURE(multiDrawIndirect);
+                    CHECK_FEATURE(drawIndirectFirstInstance);
+                    CHECK_FEATURE(depthClamp);
+                    CHECK_FEATURE(depthBiasClamp);
+                    CHECK_FEATURE(fillModeNonSolid);
+                    CHECK_FEATURE(depthBounds);
+                    CHECK_FEATURE(wideLines);
+                    CHECK_FEATURE(largePoints);
+                    CHECK_FEATURE(alphaToOne);
+                    CHECK_FEATURE(multiViewport);
+                    CHECK_FEATURE(samplerAnisotropy);
+                    CHECK_FEATURE(textureCompressionETC2);
+                    CHECK_FEATURE(textureCompressionASTC_LDR);
+                    CHECK_FEATURE(textureCompressionBC);
+                    CHECK_FEATURE(occlusionQueryPrecise);
+                    CHECK_FEATURE(pipelineStatisticsQuery);
+                    CHECK_FEATURE(vertexPipelineStoresAndAtomics);
+                    CHECK_FEATURE(fragmentStoresAndAtomics);
+                    CHECK_FEATURE(shaderTessellationAndGeometryPointSize);
+                    CHECK_FEATURE(shaderImageGatherExtended);
+                    CHECK_FEATURE(shaderStorageImageExtendedFormats);
+                    CHECK_FEATURE(shaderStorageImageMultisample);
+                    CHECK_FEATURE(shaderStorageImageReadWithoutFormat);
+                    CHECK_FEATURE(shaderStorageImageWriteWithoutFormat);
+                    CHECK_FEATURE(shaderUniformBufferArrayDynamicIndexing);
+                    CHECK_FEATURE(shaderSampledImageArrayDynamicIndexing);
+                    CHECK_FEATURE(shaderStorageBufferArrayDynamicIndexing);
+                    CHECK_FEATURE(shaderStorageImageArrayDynamicIndexing);
+                    CHECK_FEATURE(shaderClipDistance);
+                    CHECK_FEATURE(shaderCullDistance);
+                    CHECK_FEATURE(shaderFloat64);
+                    CHECK_FEATURE(shaderInt64);
+                    CHECK_FEATURE(shaderInt16);
+                    CHECK_FEATURE(shaderResourceResidency);
+                    CHECK_FEATURE(shaderResourceMinLod);
+                    CHECK_FEATURE(sparseBinding);
+                    CHECK_FEATURE(sparseResidencyBuffer);
+                    CHECK_FEATURE(sparseResidencyImage2D);
+                    CHECK_FEATURE(sparseResidencyImage3D);
+                    CHECK_FEATURE(sparseResidency2Samples);
+                    CHECK_FEATURE(sparseResidency4Samples);
+                    CHECK_FEATURE(sparseResidency8Samples);
+                    CHECK_FEATURE(sparseResidency16Samples);
+                    CHECK_FEATURE(sparseResidencyAliased);
+                    CHECK_FEATURE(variableMultisampleRate);
+                    CHECK_FEATURE(inheritedQueries);
+
+                    if (!unavailableFeatures.empty()) {
+                        if (verbose) {
+#if __cpp_lib_format_ranges >= 202207L
+                            std::println(std::cerr, "Physical device \"{}\" rejected because it lacks the following physical device features: {::s}", deviceName, unavailableFeatures);
+#else
+                            std::print(std::cerr, "Physical device \"{}\" rejected because it lacks the following physical device features: [", deviceName);
+                            for (std::size_t i = 0; i < unavailableFeatures.size(); ++i) {
+                                if (i == unavailableFeatures.size() - 1) {
+                                    std::println(std::cerr, "{}]", unavailableFeatures[i]);
+                                }
+                                else {
+                                    std::print(std::cerr, "{}, ", unavailableFeatures[i]);
+                                }
+                            }
+#endif
+                        }
+                        return 0;
+                    }
+                }
+
+                std::uint32_t score = 0;
+                if (properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {
+                    score += 1000;
+                }
+
+                score += properties.limits.maxImageDimension2D;
+
+                if (verbose) {
+                    std::println(std::cerr, "Physical device \"{}\" accepted (score={}).", deviceName, score);
+                }
+                return score;
             }
+        };
 
-            std::uint32_t score = 0;
-            if (properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {
-                score += 1000;
-            }
-
-            score += properties.limits.maxImageDimension2D;
-
-            if (verbose) {
-                std::println(std::cerr, "Physical device \"{}\" accepted (score={}).", deviceName, score);
-            }
-            return score;
-        }
-
-    public:
         template <typename... DevicePNexts>
         struct Config {
             static constexpr bool hasPhysicalDeviceFeatures = !one_of<vk::PhysicalDeviceFeatures2, DevicePNexts...>;
@@ -316,15 +330,7 @@ namespace vku {
             std::conditional_t<hasPhysicalDeviceFeatures, vk::PhysicalDeviceFeatures, std::monostate> physicalDeviceFeatures = {};
             std::function<QueueFamilies(vk::PhysicalDevice)> queueFamilyGetter = &getQueueFamilies;
             std::function<std::uint32_t(vk::PhysicalDevice)> physicalDeviceRater
-                // TODO.CXX23: use std::bind_back for readability.
-                = [this](vk::PhysicalDevice physicalDevice) {
-                    if constexpr (hasPhysicalDeviceFeatures) {
-                        return ratePhysicalDevice(physicalDevice, verbose, queueFamilyGetter, deviceExtensions, &physicalDeviceFeatures);
-                    }
-                    else {
-                        return ratePhysicalDevice(physicalDevice, verbose, queueFamilyGetter, deviceExtensions);
-                    }
-                };
+                = DefaultPhysicalDeviceRater { verbose, queueFamilyGetter, deviceExtensions, hasPhysicalDeviceFeatures ? &physicalDeviceFeatures : nullptr };
             std::tuple<DevicePNexts...> devicePNexts = {};
             vma::AllocatorCreateFlags allocatorCreateFlags = {};
             std::uint32_t apiVersion = vk::makeApiVersion(0, 1, 0, 0);
@@ -339,7 +345,7 @@ namespace vku {
         template <typename... DevicePNexts>
         explicit Gpu(
             const vk::raii::Instance &instance [[clang::lifetimebound]],
-            Config<DevicePNexts...> config = {}
+            const Config<DevicePNexts...> &config = {}
         ) : physicalDevice { selectPhysicalDevice(instance, config) },
             queueFamilies { config.queueFamilyGetter(physicalDevice) },
             device { createDevice(config) },
@@ -353,10 +359,8 @@ namespace vku {
         template <typename... DevicePNexts>
         [[nodiscard]] auto selectPhysicalDevice(
             const vk::raii::Instance &instance,
-            Config<DevicePNexts...> &config
+            const Config<DevicePNexts...> &config
         ) const -> vk::raii::PhysicalDevice {
-            std::ranges::sort(config.deviceExtensions);
-
             std::vector physicalDevices = instance.enumeratePhysicalDevices();
             vk::raii::PhysicalDevice bestPhysicalDevice = *std::ranges::max_element(physicalDevices, {}, config.physicalDeviceRater);
             if (config.physicalDeviceRater(*bestPhysicalDevice) == 0) {
@@ -431,11 +435,7 @@ namespace vk_deferred::vulkan {
         std::uint32_t graphicsPresent;
 
         QueueFamilies(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
-            : QueueFamilies { physicalDevice, surface, physicalDevice.getQueueFamilyProperties() } { }
-
-    private:
-        QueueFamilies(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, std::span<const vk::QueueFamilyProperties> queueFamilyProperties)
-            : graphicsPresent { vku::getGraphicsPresentQueueFamily(physicalDevice, surface, queueFamilyProperties).value() } { }
+            : graphicsPresent { vku::getGraphicsPresentQueueFamily(physicalDevice, surface, physicalDevice.getQueueFamilyProperties()).value() } { }
     };
 
     struct Queues {
