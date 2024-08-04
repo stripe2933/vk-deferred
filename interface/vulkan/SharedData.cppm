@@ -30,7 +30,7 @@ namespace vk_deferred::vulkan {
         // Render passes.
         // --------------------
 
-        DeferredRenderPass deferredRenderPass;
+        rp::Deferred deferredRenderPass;
 
         // --------------------
         // Descriptor set layouts.

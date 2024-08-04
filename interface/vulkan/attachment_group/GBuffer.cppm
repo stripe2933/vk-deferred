@@ -1,11 +1,11 @@
-export module vk_deferred:vulkan.attachment_group.GBufferAttachmentGroup;
+export module vk_deferred:vulkan.ag.GBuffer;
 
 import vku;
 export import :vulkan.Gpu;
 
-namespace vk_deferred::vulkan::inline attachment_group {
-    export struct GBufferAttachmentGroup final : vku::AttachmentGroup {
-        GBufferAttachmentGroup(
+namespace vk_deferred::vulkan::ag {
+    export struct GBuffer final : vku::AttachmentGroup {
+        GBuffer(
             const Gpu &gpu [[clang::lifetimebound]],
             const vk::Extent2D &extent
         ) : AttachmentGroup { extent } {
