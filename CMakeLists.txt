@@ -9,15 +9,6 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_MODULE_STD 1)
 
 # ----------------
-# Include CPM.cmake.
-# ----------------
-
-file(DOWNLOAD https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake
-)
-include(${CMAKE_CURRENT_BINARY_DIR}/CPM.cmake)
-
-# ----------------
 # External dependencies.
 # ----------------
 
@@ -57,11 +48,11 @@ target_sources(vk-deferred PRIVATE
     FILES
         interface/mod.cppm
         interface/MainApp.cppm
-        interface/vulkan/attachment_group/DeferredLightingAttachmentGroup.cppm
-        interface/vulkan/attachment_group/GBufferAttachmentGroup.cppm
-        interface/vulkan/attachment_group/SwapchainAttachmentGroup.cppm
-        interface/vulkan/dsl/GBufferInput.cppm
-        interface/vulkan/dsl/HdrInput.cppm
+        interface/vulkan/attachment_group/DeferredLighting.cppm
+        interface/vulkan/attachment_group/GBuffer.cppm
+        interface/vulkan/attachment_group/Swapchain.cppm
+        interface/vulkan/descriptor_set_layout/GBufferInput.cppm
+        interface/vulkan/descriptor_set_layout/HdrInput.cppm
         interface/vulkan/Frame.cppm
         interface/vulkan/Gpu.cppm
         interface/vulkan/mesh/Floor.cppm
@@ -72,7 +63,7 @@ target_sources(vk-deferred PRIVATE
         interface/vulkan/pipeline/DeferredLightRenderer.cppm
         interface/vulkan/pipeline/GBufferRenderer.cppm
         interface/vulkan/pipeline/ToneMappingRenderer.cppm
-        interface/vulkan/render_pass/DeferredRenderPass.cppm
+        interface/vulkan/render_pass/Deferred.cppm
         interface/vulkan/SharedData.cppm
 )
 target_link_libraries(vk-deferred PRIVATE

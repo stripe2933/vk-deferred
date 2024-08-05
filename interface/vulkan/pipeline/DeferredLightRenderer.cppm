@@ -7,7 +7,7 @@ export import glm;
 export import vulkan_hpp;
 import vku;
 export import :vulkan.dsl.GBufferInput;
-export import :vulkan.render_pass.DeferredRenderPass;
+export import :vulkan.rp.Deferred;
 
 namespace vk_deferred::vulkan::inline pipeline {
     export struct DeferredLightingRenderer {
@@ -22,7 +22,7 @@ namespace vk_deferred::vulkan::inline pipeline {
         DeferredLightingRenderer(
             const vk::raii::Device &device [[clang::lifetimebound]],
             const dsl::GBufferInput &descriptorSetLayout [[clang::lifetimebound]],
-            const DeferredRenderPass &renderPass [[clang::lifetimebound]]
+            const rp::Deferred &renderPass [[clang::lifetimebound]]
         ) : pipelineLayout { device, vk::PipelineLayoutCreateInfo {
                 {},
                 vku::unsafeProxy(*descriptorSetLayout),

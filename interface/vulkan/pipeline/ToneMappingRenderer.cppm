@@ -6,7 +6,7 @@ import std;
 export import vulkan_hpp;
 import vku;
 export import :vulkan.dsl.HdrInput;
-export import :vulkan.render_pass.DeferredRenderPass;
+export import :vulkan.rp.Deferred;
 
 namespace vk_deferred::vulkan::inline pipeline {
     export struct ToneMappingRenderer {
@@ -16,7 +16,7 @@ namespace vk_deferred::vulkan::inline pipeline {
         ToneMappingRenderer(
             const vk::raii::Device &device [[clang::lifetimebound]],
             const dsl::HdrInput &descriptorSetLayout [[clang::lifetimebound]],
-            const DeferredRenderPass &renderPass [[clang::lifetimebound]]
+            const rp::Deferred &renderPass [[clang::lifetimebound]]
         ) : pipelineLayout { device, vk::PipelineLayoutCreateInfo {
                 {},
                 vku::unsafeProxy(*descriptorSetLayout),

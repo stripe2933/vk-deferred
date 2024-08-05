@@ -11,9 +11,9 @@ import vku;
 import :vulkan.buffer.LightInstances;
 export import :vulkan.Gpu;
 export import :vulkan.SharedData;
-import :vulkan.attachment_group.GBufferAttachmentGroup;
-import :vulkan.attachment_group.DeferredLightingAttachmentGroup;
-import :vulkan.attachment_group.SwapchainAttachmentGroup;
+import :vulkan.ag.GBuffer;
+import :vulkan.ag.DeferredLighting;
+import :vulkan.ag.Swapchain;
 
 #define FWD(...) static_cast<decltype(__VA_ARGS__)&&>(__VA_ARGS__)
 
@@ -164,9 +164,9 @@ namespace vk_deferred::vulkan {
         // Frame-exclusive Attachment groups.
         // --------------------
 
-        GBufferAttachmentGroup gbufferAttachmentGroup { gpu, sharedData.swapchainExtent };
-        DeferredLightingAttachmentGroup deferredLightingAttachmentGroup { gpu, sharedData.swapchainExtent, gbufferAttachmentGroup.depthStencilAttachment->image };
-        std::vector<SwapchainAttachmentGroup> swapchainAttachmentGroups = createSwapchainAttachmentGroups();
+        ag::GBuffer gbufferAttachmentGroup { gpu, sharedData.swapchainExtent };
+        ag::DeferredLighting deferredLightingAttachmentGroup { gpu, sharedData.swapchainExtent, gbufferAttachmentGroup.depthStencilAttachment->image };
+        std::vector<ag::Swapchain> swapchainAttachmentGroups = createSwapchainAttachmentGroups();
 
         // --------------------
         // GPU resources.
@@ -207,10 +207,10 @@ namespace vk_deferred::vulkan {
         vk::raii::Semaphore drawFinishSemaphore { gpu.device, vk::SemaphoreCreateInfo{} };
         vk::raii::Fence frameFinishFence { gpu.device, vk::FenceCreateInfo { vk::FenceCreateFlagBits::eSignaled } };
 
-        [[nodiscard]] auto createSwapchainAttachmentGroups() const -> std::vector<SwapchainAttachmentGroup> {
+        [[nodiscard]] auto createSwapchainAttachmentGroups() const -> std::vector<ag::Swapchain> {
             return sharedData.swapchainImages
                 | std::views::transform([&](vk::Image image) {
-                    return SwapchainAttachmentGroup {
+                    return ag::Swapchain {
                         gpu.device,
                         sharedData.swapchainExtent,
                         vku::Image { image, vk::Extent3D { sharedData.swapchainExtent, 1 }, vk::Format::eB8G8R8A8Srgb, 1, 1 },

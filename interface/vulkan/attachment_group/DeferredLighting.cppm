@@ -1,11 +1,11 @@
-export module vk_deferred:vulkan.attachment_group.DeferredLightingAttachmentGroup;
+export module vk_deferred:vulkan.ag.DeferredLighting;
 
 export import vku;
 export import :vulkan.Gpu;
 
-namespace vk_deferred::vulkan::inline attachment_group {
-    export struct DeferredLightingAttachmentGroup final : vku::AttachmentGroup {
-        DeferredLightingAttachmentGroup(
+namespace vk_deferred::vulkan::ag {
+    export struct DeferredLighting final : vku::AttachmentGroup {
+        DeferredLighting(
             const Gpu &gpu [[clang::lifetimebound]],
             const vk::Extent2D &extent,
             const vku::Image &depthStencilImage [[clang::lifetimebound]]

@@ -1,4 +1,4 @@
-export module vk_deferred:vulkan.render_pass.DeferredRenderPass;
+export module vk_deferred:vulkan.rp.Deferred;
 
 #ifdef _MSC_VER
 import std;
@@ -6,9 +6,9 @@ import std;
 import vku;
 export import vulkan_hpp;
 
-namespace vk_deferred::vulkan::inline render_pass {
-    export struct DeferredRenderPass final : vk::raii::RenderPass {
-        explicit DeferredRenderPass(
+namespace vk_deferred::vulkan::rp {
+    export struct Deferred final : vk::raii::RenderPass {
+        explicit Deferred(
             const vk::raii::Device &device [[clang::lifetimebound]]
         ) : RenderPass { device, vk::RenderPassCreateInfo {
             {},
