@@ -49,9 +49,9 @@ The executable will be located in the build folder.
 If your system already has the required dependencies installed, and the following CMake commands are available:
 
 ```cmake
-find_package(VulkanMemoryAllocator REQUIRED)
-find_package(VulkanMemoryAllocator-Hpp REQUIRED)
-find_package(vku REQUIRED)
+find_package(VulkanMemoryAllocator CONFIG REQUIRED)
+find_package(VulkanMemoryAllocator-Hpp CONFIG REQUIRED)
+find_package(vku CONFIG REQUIRED)
 ```
 
 You can build the project with these commands:
