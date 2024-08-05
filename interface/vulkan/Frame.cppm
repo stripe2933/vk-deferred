@@ -82,8 +82,8 @@ namespace vk_deferred::vulkan {
             commandBuffer.begin({ vk::CommandBufferUsageFlagBits::eOneTimeSubmit });
 
             // Set viewport and scissor, which are pipeline dynamic states.
-            commandBuffer.setViewport(0, gbufferAttachmentGroup.getViewport(true));
-            commandBuffer.setScissor(0, gbufferAttachmentGroup.getScissor());
+            commandBuffer.setViewport(0, vku::toViewport(sharedData.swapchainExtent, true));
+            commandBuffer.setScissor(0, vk::Rect2D { { 0, 0 }, sharedData.swapchainExtent });
 
             commandBuffer.beginRenderPass(vk::RenderPassBeginInfo {
                 *sharedData.deferredRenderPass,
