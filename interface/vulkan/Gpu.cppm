@@ -40,7 +40,7 @@ namespace vk_deferred::vulkan {
 
     export struct Gpu : vku::Gpu<QueueFamilies, Queues> {
         explicit Gpu(const vk::raii::Instance &instance [[clang::lifetimebound]], vk::SurfaceKHR surface)
-            : vku::Gpu<QueueFamilies, Queues> { instance, Config {
+            : vku::Gpu<QueueFamilies, Queues> { instance, Config<> {
                 .verbose = true,
                 .deviceExtensions = {
 #if __APPLE__
