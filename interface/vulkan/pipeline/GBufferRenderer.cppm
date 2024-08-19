@@ -28,34 +28,10 @@ namespace vk_deferred::vulkan::inline pipeline {
                 }),
             } },
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
-#ifdef _MSC_VER
-                // TODO: due to the MSVC C++20 module bug, vku::createPipelineStages not works well. Use it instead when fixed.
-                vku::unsafeProxy({
-                    vk::PipelineShaderStageCreateInfo {
-                        {},
-                        vk::ShaderStageFlagBits::eVertex,
-                        *vk::raii::ShaderModule { device, vk::ShaderModuleCreateInfo {
-                            {},
-                            vku::unsafeProxy(vku::Shader { COMPILED_SHADER_DIR "/pn_instanced.vert.spv", vk::ShaderStageFlagBits::eVertex }.code),
-                        } },
-                        "main",
-                    },
-                    vk::PipelineShaderStageCreateInfo {
-                        {},
-                        vk::ShaderStageFlagBits::eFragment,
-                        *vk::raii::ShaderModule { device, vk::ShaderModuleCreateInfo {
-                            {},
-                            vku::unsafeProxy(vku::Shader { COMPILED_SHADER_DIR "/gbuffer.frag.spv", vk::ShaderStageFlagBits::eFragment }.code),
-                        } },
-                        "main",
-                    },
-                }),
-#else
-                vku::createPipelineStages(
+                createPipelineStages(
                     device,
                     vku::Shader { COMPILED_SHADER_DIR "/pn_instanced.vert.spv", vk::ShaderStageFlagBits::eVertex },
                     vku::Shader { COMPILED_SHADER_DIR "/gbuffer.frag.spv", vk::ShaderStageFlagBits::eFragment }).get(),
-#endif
                 *pipelineLayout, 2, true)
                 .setPVertexInputState(vku::unsafeAddress(vk::PipelineVertexInputStateCreateInfo {
                     {},
