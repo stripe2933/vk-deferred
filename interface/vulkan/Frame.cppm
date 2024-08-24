@@ -41,15 +41,9 @@ namespace vk_deferred::vulkan {
 
             // Update per-frame descriptors.
             gpu.device.updateDescriptorSets({
-                gBufferInputDescriptorSet.getWrite<0>(vku::unsafeProxy({
-                    vk::DescriptorImageInfo { {}, *gbufferAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal },
-                })),
-                gBufferInputDescriptorSet.getWrite<1>(vku::unsafeProxy({
-                    vk::DescriptorImageInfo { {}, *gbufferAttachmentGroup.colorAttachments[1].view, vk::ImageLayout::eShaderReadOnlyOptimal },
-                })),
-                hdrImageDescriptorSet.getWrite<0>(vku::unsafeProxy({
-                    vk::DescriptorImageInfo { {}, *deferredLightingAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal },
-                })),
+                gBufferInputDescriptorSet.getWriteOne<0>({ {}, *gbufferAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal }),
+                gBufferInputDescriptorSet.getWriteOne<1>({ {}, *gbufferAttachmentGroup.colorAttachments[1].view, vk::ImageLayout::eShaderReadOnlyOptimal }),
+                hdrImageDescriptorSet.getWriteOne<0>({ {}, *deferredLightingAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal }),
             }, {});
 
             // Initialize attachment layouts.
