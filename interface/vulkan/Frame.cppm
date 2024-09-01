@@ -13,7 +13,6 @@ export import :vulkan.Gpu;
 export import :vulkan.SharedData;
 import :vulkan.ag.GBuffer;
 import :vulkan.ag.DeferredLighting;
-import :vulkan.ag.Swapchain;
 
 #define FWD(...) static_cast<decltype(__VA_ARGS__)&&>(__VA_ARGS__)
 
@@ -41,9 +40,9 @@ namespace vk_deferred::vulkan {
 
             // Update per-frame descriptors.
             gpu.device.updateDescriptorSets({
-                gBufferInputDescriptorSet.getWriteOne<0>({ {}, *gbufferAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal }),
-                gBufferInputDescriptorSet.getWriteOne<1>({ {}, *gbufferAttachmentGroup.colorAttachments[1].view, vk::ImageLayout::eShaderReadOnlyOptimal }),
-                hdrImageDescriptorSet.getWriteOne<0>({ {}, *deferredLightingAttachmentGroup.colorAttachments[0].view, vk::ImageLayout::eShaderReadOnlyOptimal }),
+                gBufferInputDescriptorSet.getWriteOne<0>({ {}, *gbufferAttachmentGroup.getColorAttachment(0).view, vk::ImageLayout::eShaderReadOnlyOptimal }),
+                gBufferInputDescriptorSet.getWriteOne<1>({ {}, *gbufferAttachmentGroup.getColorAttachment(1).view, vk::ImageLayout::eShaderReadOnlyOptimal }),
+                hdrImageDescriptorSet.getWriteOne<0>({ {}, *deferredLightingAttachmentGroup.getColorAttachment(0).view, vk::ImageLayout::eShaderReadOnlyOptimal }),
             }, {});
 
             // Initialize attachment layouts.
@@ -160,7 +159,6 @@ namespace vk_deferred::vulkan {
 
         ag::GBuffer gbufferAttachmentGroup { gpu, sharedData.swapchainExtent };
         ag::DeferredLighting deferredLightingAttachmentGroup { gpu, sharedData.swapchainExtent, gbufferAttachmentGroup.depthStencilAttachment->image };
-        std::vector<ag::Swapchain> swapchainAttachmentGroups = createSwapchainAttachmentGroups();
 
         // --------------------
         // GPU resources.
@@ -201,30 +199,18 @@ namespace vk_deferred::vulkan {
         vk::raii::Semaphore drawFinishSemaphore { gpu.device, vk::SemaphoreCreateInfo{} };
         vk::raii::Fence frameFinishFence { gpu.device, vk::FenceCreateInfo { vk::FenceCreateFlagBits::eSignaled } };
 
-        [[nodiscard]] auto createSwapchainAttachmentGroups() const -> std::vector<ag::Swapchain> {
-            return sharedData.swapchainImages
-                | std::views::transform([&](vk::Image image) {
-                    return ag::Swapchain {
-                        gpu.device,
-                        sharedData.swapchainExtent,
-                        vku::Image { image, vk::Extent3D { sharedData.swapchainExtent, 1 }, vk::Format::eB8G8R8A8Srgb, 1, 1 },
-                    };
-                })
-                | std::ranges::to<std::vector>();
-        }
-
         [[nodiscard]] auto createFramebuffers() const -> std::vector<vk::raii::Framebuffer> {
-            return swapchainAttachmentGroups
-                | std::views::transform([&](const auto &swapchainAttachmentGroup) {
+            return sharedData.swapchainAttachmentGroup.getSwapchainAttachment(0).views
+                | std::views::transform([&](vk::ImageView swapchainImageView) {
                     return vk::raii::Framebuffer { gpu.device, vk::FramebufferCreateInfo {
                         {},
                         *sharedData.deferredRenderPass,
                         vku::unsafeProxy({
-                            *gbufferAttachmentGroup.colorAttachments[0].view,
-                            *gbufferAttachmentGroup.colorAttachments[1].view,
+                            *gbufferAttachmentGroup.getColorAttachment(0).view,
+                            *gbufferAttachmentGroup.getColorAttachment(1).view,
                             *gbufferAttachmentGroup.depthStencilAttachment->view,
-                            *deferredLightingAttachmentGroup.colorAttachments[0].view,
-                            *swapchainAttachmentGroup.colorAttachments[0].view,
+                            *deferredLightingAttachmentGroup.getColorAttachment(0).view,
+                            swapchainImageView,
                         }),
                         sharedData.swapchainExtent.width, sharedData.swapchainExtent.height, 1,
                     } };
@@ -258,13 +244,13 @@ namespace vk_deferred::vulkan {
                         {}, {},
                         {}, vk::ImageLayout::eShaderReadOnlyOptimal,
                         vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-                        gbufferAttachmentGroup.colorAttachments[0].image, vku::fullSubresourceRange(),
+                        gbufferAttachmentGroup.getColorAttachment(0).image, vku::fullSubresourceRange(),
                     },
                     vk::ImageMemoryBarrier {
                         {}, {},
                         {}, vk::ImageLayout::eShaderReadOnlyOptimal,
                         vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-                        gbufferAttachmentGroup.colorAttachments[1].image, vku::fullSubresourceRange(),
+                        gbufferAttachmentGroup.getColorAttachment(1).image, vku::fullSubresourceRange(),
                     },
                     vk::ImageMemoryBarrier {
                         {}, {},
@@ -276,7 +262,7 @@ namespace vk_deferred::vulkan {
                         {}, {},
                         {}, vk::ImageLayout::eShaderReadOnlyOptimal,
                         vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-                        deferredLightingAttachmentGroup.colorAttachments[0].image, vku::fullSubresourceRange(),
+                        deferredLightingAttachmentGroup.getColorAttachment(0).image, vku::fullSubresourceRange(),
                     }
                 });
         }

@@ -1,8 +1,6 @@
 export module vk_deferred:vulkan.ag.Swapchain;
 
-#ifdef _MSC_VER
 import std;
-#endif
 export import vku;
 
 namespace vk_deferred::vulkan::ag {
@@ -10,9 +8,9 @@ namespace vk_deferred::vulkan::ag {
         Swapchain(
             const vk::raii::Device &device [[clang::lifetimebound]],
             const vk::Extent2D &extent,
-            const vku::Image &swapchainImage
+            std::span<const vk::Image> swapchainImages
         ) : AttachmentGroup { extent } {
-            addColorAttachment(device, swapchainImage);
+            addSwapchainAttachment(device, swapchainImages, vk::Format::eB8G8R8A8Srgb);
         }
     };
 }

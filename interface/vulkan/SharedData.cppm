@@ -6,6 +6,7 @@ export module vk_deferred:vulkan.SharedData;
 
 import std;
 import vku;
+import :vulkan.ag.Swapchain;
 import :vulkan.buffer.FloorTransforms;
 import :vulkan.buffer.SphereTransforms;
 export import :vulkan.Gpu;
@@ -56,6 +57,12 @@ namespace vk_deferred::vulkan {
         mesh::Floor floorMesh;
         buffer::FloorTransforms floorTransforms;
 
+        // --------------------
+        // Attachment groups.
+        // --------------------
+
+        ag::Swapchain swapchainAttachmentGroup;
+
         SharedData(
             const Gpu &gpu [[clang::lifetimebound]],
             vk::SurfaceKHR surface
@@ -70,7 +77,8 @@ namespace vk_deferred::vulkan {
             sphereMesh { gpu.allocator },
             sphereTransforms { gpu.allocator },
             floorMesh { gpu.allocator },
-            floorTransforms { gpu.allocator } {
+            floorTransforms { gpu.allocator },
+            swapchainAttachmentGroup { gpu.device, swapchainExtent, swapchainImages } {
             const vk::raii::CommandPool commandPool { gpu.device, vk::CommandPoolCreateInfo {
                 vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
                 gpu.queueFamilies.graphicsPresent,
