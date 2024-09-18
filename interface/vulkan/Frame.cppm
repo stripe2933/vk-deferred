@@ -185,11 +185,7 @@ namespace vk_deferred::vulkan {
         // --------------------
 
         vk::raii::CommandPool commandPool = createCommandPool();
-        vk::CommandBuffer commandBuffer = (*gpu.device).allocateCommandBuffers(vk::CommandBufferAllocateInfo {
-            *commandPool,
-            vk::CommandBufferLevel::ePrimary,
-            1,
-        })[0];
+        vk::CommandBuffer commandBuffer = vku::allocateCommandBuffers<1>(*gpu.device, *commandPool)[0];
 
         // --------------------
         // Synchronization stuffs.
