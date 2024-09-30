@@ -1,0 +1,18 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "linux-clang-18",
+      "displayName": "Linux + Clang 18",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "/usr/bin/clang-18",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++-18",
+        "CMAKE_CXX_FLAGS": "-stdlib=libc++",
+        "CMAKE_EXE_LINKER_FLAGS": "-stdlib=libc++ -lc++abi",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/triplets",
+        "VCPKG_TARGET_TRIPLET": "x64-linux-clang"
+      }
+    }
+  ]
+}

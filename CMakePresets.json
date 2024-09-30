@@ -3,16 +3,11 @@
   "configurePresets": [
     {
       "name": "default",
-      "displayName": "Default",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build"
-    },
-    {
-      "name": "vcpkg",
-      "displayName": "vcpkg-based dependency management",
-      "inherits": "default",
+      "binaryDir": "${sourceDir}/build",
       "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
+        "CMAKE_EXPERIMENTAL_CXX_IMPORT_STD": "0e5b6991-d74f-4b3d-a41c-cf096e0b2508",
         "VCPKG_OVERLAY_PORTS": "${sourceDir}/overlays"
       }
     }

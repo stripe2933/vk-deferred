@@ -45,8 +45,8 @@ jobs:
 
       - name: Configure
         run: |
-          mv .github/workflows/CMakeUserPresets.json .
-          cmake --preset=clang
+          mv .github/workflows/scripts/* .
+          cmake --preset=linux-clang-18
 
       - name: Build
         run: cmake --build build --config release
