@@ -46,7 +46,7 @@ jobs:
       - name: Configure
         run: |
           mv .github/workflows/scripts/* .
-          cmake --preset=clang
+          cmake --preset=linux-clang-18
 
       - name: Build
         run: cmake --build build --config release
