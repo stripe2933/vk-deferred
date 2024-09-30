@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    runs-on: macOS-15
+    runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -26,8 +26,8 @@ jobs:
           vulkan-components: Vulkan-Headers, Vulkan-Loader
           vulkan-use-cache: true
 
-      - name: Install Ninja
-        run: brew install ninja
+      - name: Install latest LLVM and Ninja
+        run: brew install llvm ninja
 
       - name: Install vcpkg
         run: |
@@ -45,14 +45,7 @@ jobs:
       - name: Configure
         run: |
           mv .github/workflows/scripts/* .
-          cmake --preset=macos-clang-18
-
-      - name: Show error if CMake configuration failed
-        if: failure()
-        run: |
-          cat vcpkg/buildtrees/detect_compiler/config-arm64-osx-clang-rel-CMakeCache.txt.log
-          cat vcpkg/buildtrees/detect_compiler/config-arm64-osx-clang-rel-out.log
-          cat vcpkg/buildtrees/detect_compiler/config-arm64-osx-clang-rel-err.log
+          cmake --preset=macos-clang
 
       - name: Build
         run: cmake --build build --config release
