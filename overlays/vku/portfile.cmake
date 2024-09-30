@@ -3,11 +3,14 @@ vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO stripe2933/vku
-    REF v0.1.0-test30
-    SHA512 00b274fdcf5b5866ee6393b3f8140a9868853d3df4b68b26fec195add536fb58837647010ab91952bd5bcd4939b55c1326257e9591d711cc6bfb9a7b28ccbdda
+    REF v0.1.0-test29
+    SHA512 937ef4ea0191a10f7c1367bbc5adefc9f6cf020c159d612a3fa921f944b366fe96aab855465fe99f54371942a2143ce782f5830b54f15774d4bb5b45d00ffbdb
     HEAD_REF module
     PATCHES vcpkg-deps.patch
 )
+
+# Module project doesn't use header files.
+set(VCPKG_POLICY_EMPTY_INCLUDE_FOLDER enabled)
 
 # Set CMake variables from the requested features.
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
