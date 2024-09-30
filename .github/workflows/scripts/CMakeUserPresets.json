@@ -13,6 +13,18 @@
         "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/triplets",
         "VCPKG_TARGET_TRIPLET": "x64-linux-clang"
       }
+    },
+    {
+      "name": "macos-clang-18",
+      "displayName": "macOS + Clang 18",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm@18/bin/clang++",
+        "CMAKE_CXX_FLAGS": "-nostdinc++ -nostdlib++ -isystem /opt/homebrew/opt/llvm@18/include/c++/v1",
+        "CMAKE_EXE_LINKER_FLAGS": "-L /opt/homebrew/opt/llvm@18/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@18/lib/c++ -lc++",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/triplets",
+        "VCPKG_TARGET_TRIPLET": "arm64-osx-clang"
+      }
     }
   ]
 }
