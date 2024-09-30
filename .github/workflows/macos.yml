@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    runs-on: macOS-15-arm64
+    runs-on: macOS-15
     steps:
       - uses: actions/checkout@v4
 
