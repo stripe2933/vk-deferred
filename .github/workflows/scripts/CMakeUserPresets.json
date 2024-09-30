@@ -6,7 +6,6 @@
       "displayName": "Linux + Clang 18",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "/usr/bin/clang-18",
         "CMAKE_CXX_COMPILER": "/usr/bin/clang++-18",
         "CMAKE_CXX_FLAGS": "-stdlib=libc++",
         "CMAKE_EXE_LINKER_FLAGS": "-stdlib=libc++ -lc++abi",

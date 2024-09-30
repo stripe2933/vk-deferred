@@ -27,8 +27,7 @@ jobs:
           vulkan-use-cache: true
 
       - name: Install Ninja and build dependencies
-        run: |
-          sudo apt-get install ninja-build xorg-dev libc++-dev libc++abi-dev
+        run: sudo apt-get install ninja-build xorg-dev libc++-dev libc++abi-dev
 
       - name: Install vcpkg
         run: |
