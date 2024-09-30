@@ -1,7 +1,8 @@
 # vk-deferred
 
-![Linux](https://github.com/stripe2933/vk-deferred/actions/workflows/linux.yml/badge.svg)
 ![Windows](https://github.com/stripe2933/vk-deferred/actions/workflows/windows.yml/badge.svg)
+![macOS](https://github.com/stripe2933/vk-deferred/actions/workflows/macos.yml/badge.svg)
+![Linux](https://github.com/stripe2933/vk-deferred/actions/workflows/linux.yml/badge.svg)
 
 ![Running screenshot](doc/images/running-screenshot.png)
 
@@ -31,7 +32,7 @@ Dependencies will be automatically fetched using vcpkg.
 ### Build Steps
 
 > [!TIP]
-> This project uses GitHub Runner to ensure build compatibility on both Linux and Windows, with dependency management handled by vcpkg. You can check the workflow files in the [.github/workflows](.github/workflows) folder.
+> This project uses GitHub Runner to ensure build compatibility on Windows (with MSVC), macOS and Linux (with Clang). You can check the workflow files in the [.github/workflows](.github/workflows) folder.
 
 This project, along with its dependency `vku`, supports vcpkg for dependency management. Follow these steps to build the project:
 

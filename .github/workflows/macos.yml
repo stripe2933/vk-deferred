@@ -1,4 +1,4 @@
-name: Linux
+name: macOS
 
 env:
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15-arm64
+    runs-on: macOS-15-arm64
     steps:
       - uses: actions/checkout@v4
 
