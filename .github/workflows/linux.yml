@@ -45,7 +45,7 @@ jobs:
 
       - name: Configure
         run: |
-          mv .github/workflows/CMakeUserPresets.json .
+          mv .github/workflows/scripts/* .
           cmake --preset=clang
 
       - name: Build
