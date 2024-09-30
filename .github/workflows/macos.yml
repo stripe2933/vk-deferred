@@ -47,5 +47,12 @@ jobs:
           mv .github/workflows/scripts/* .
           cmake --preset=macos-clang-18
 
+      - name: Show error if CMake configuration failed
+        if: failure()
+        run: |
+          cat vcpkg/buildtrees/detect_compiler/config-arm64-osx-clang-rel-CMakeCache.txt.log
+          cat vcpkg/buildtrees/detect_compiler/config-arm64-osx-clang-rel-out.log
+          cat vcpkg/buildtrees/detect_compiler/config-arm64-osx-clang-rel-err.log
+
       - name: Build
         run: cmake --build build --config release
