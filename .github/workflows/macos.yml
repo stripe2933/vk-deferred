@@ -26,8 +26,8 @@ jobs:
           vulkan-components: Vulkan-Headers, Vulkan-Loader
           vulkan-use-cache: true
 
-      - name: Install Ninja and build dependencies
-        run: brew install ninja libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config
+      - name: Install Ninja
+        run: brew install ninja
 
       - name: Install vcpkg
         run: |
