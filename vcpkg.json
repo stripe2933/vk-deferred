@@ -3,8 +3,10 @@
     "glfw3",
     "glm",
     {
-        "name": "vku",
-        "features": ["std-module"]
+      "name": "vku",
+      "features": [
+        "std-module"
+      ]
     }
   ]
 }
