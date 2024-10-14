@@ -33,8 +33,8 @@ namespace vk_deferred::vulkan::inline pipeline {
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
                 createPipelineStages(
                     device,
-                    vku::Shader { COMPILED_SHADER_DIR "/light_volume.vert.spv", vk::ShaderStageFlagBits::eVertex },
-                    vku::Shader { COMPILED_SHADER_DIR "/deferred_lighting.frag.spv", vk::ShaderStageFlagBits::eFragment }).get(),
+                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/light_volume.vert.spv", vk::ShaderStageFlagBits::eVertex),
+                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/deferred_lighting.frag.spv", vk::ShaderStageFlagBits::eFragment)).get(),
                 *pipelineLayout, 1, true)
                 .setPVertexInputState(vku::unsafeAddress(vk::PipelineVertexInputStateCreateInfo {
                     {},

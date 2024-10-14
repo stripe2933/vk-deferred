@@ -24,8 +24,8 @@ namespace vk_deferred::vulkan::inline pipeline {
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
                 createPipelineStages(
                     device,
-                    vku::Shader { COMPILED_SHADER_DIR "/full_triangle.vert.spv", vk::ShaderStageFlagBits::eVertex },
-                    vku::Shader { COMPILED_SHADER_DIR "/rec709.frag.spv", vk::ShaderStageFlagBits::eFragment }).get(),
+                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/full_triangle.vert.spv", vk::ShaderStageFlagBits::eVertex),
+                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/rec709.frag.spv", vk::ShaderStageFlagBits::eFragment)).get(),
                 *pipelineLayout, 1)
                 .setRenderPass(*renderPass)
                 .setSubpass(2)

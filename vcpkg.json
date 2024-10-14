@@ -2,6 +2,11 @@
   "dependencies": [
     "glfw3",
     "glm",
-    "vku"
+    {
+      "name": "vku",
+      "features": [
+        "std-module"
+      ]
+    }
   ]
 }

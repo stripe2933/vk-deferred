@@ -22,22 +22,16 @@ namespace vk_deferred::vulkan {
         Queues(vk::Device device, const QueueFamilies &queueFamilies) noexcept
             : graphicsPresent { device.getQueue(queueFamilies.graphicsPresent, 0) } { }
 
-        [[nodiscard]] static auto getCreateInfos(vk::PhysicalDevice, const QueueFamilies &queueFamilies) noexcept
-#ifdef _MSC_VER
-            -> vku::RefHolder<std::array<vk::DeviceQueueCreateInfo, 1>, std::array<float, 1>>
-#endif
-        {
+        [[nodiscard]] static auto getCreateInfos(vk::PhysicalDevice, const QueueFamilies &queueFamilies) noexcept -> vku::RefHolder<vk::DeviceQueueCreateInfo> {
             return vku::RefHolder {
-                [&](std::span<const float> priorities) {
-                    return std::array {
-                        vk::DeviceQueueCreateInfo {
-                            {},
-                            queueFamilies.graphicsPresent,
-                            priorities,
-                        },
+                [&]() {
+                    static constexpr float priority = 1.f;
+                    return vk::DeviceQueueCreateInfo {
+                        {},
+                        queueFamilies.graphicsPresent,
+                        vk::ArrayProxyNoTemporaries<const float> { priority },
                     };
                 },
-                std::array { 1.f },
             };
         }
     };
