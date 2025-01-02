@@ -1,3 +1,9 @@
+module;
+
+#ifdef _MSC_VER
+#include <format>
+#endif
+
 export module vk_deferred:vulkan.buffer.FloorTransforms;
 
 import std;
