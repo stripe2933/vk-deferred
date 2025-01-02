@@ -70,5 +70,19 @@ target_link_libraries(vk-deferred PRIVATE
 )
 target_compile_definitions(vk-deferred PRIVATE
     GLFW_INCLUDE_NONE
-    COMPILED_SHADER_DIR="${CMAKE_CURRENT_SOURCE_DIR}/shaders"
+)
+
+# ----------------
+# Shader compilation.
+# ----------------
+
+include(cmake/CompileShader.cmake)
+
+target_link_shaders(vk-deferred
+    shaders/deferred_lighting.frag
+    shaders/full_triangle.vert
+    shaders/gbuffer.frag
+    shaders/light_volume.vert
+    shaders/pn_instanced.vert
+    shaders/rec709.frag
 )

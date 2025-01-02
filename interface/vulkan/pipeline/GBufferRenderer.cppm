@@ -6,6 +6,8 @@ import std;
 export import glm;
 export import vulkan_hpp;
 import vku;
+import :shader.pn_instanced_vert;
+import :shader.gbuffer_frag;
 export import :vulkan.rp.Deferred;
 
 namespace vk_deferred::vulkan::inline pipeline {
@@ -30,8 +32,8 @@ namespace vk_deferred::vulkan::inline pipeline {
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
                 createPipelineStages(
                     device,
-                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/pn_instanced.vert.spv", vk::ShaderStageFlagBits::eVertex),
-                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/gbuffer.frag.spv", vk::ShaderStageFlagBits::eFragment)).get(),
+                    vku::Shader { shader::pn_instanced_vert, vk::ShaderStageFlagBits::eVertex },
+                    vku::Shader { shader::gbuffer_frag, vk::ShaderStageFlagBits::eFragment }).get(),
                 *pipelineLayout, 2, true)
                 .setPVertexInputState(vku::unsafeAddress(vk::PipelineVertexInputStateCreateInfo {
                     {},

@@ -5,6 +5,8 @@ import std;
 #endif
 export import vulkan_hpp;
 import vku;
+import :shader.full_triangle_vert;
+import :shader.rec709_frag;
 export import :vulkan.dsl.HdrInput;
 export import :vulkan.rp.Deferred;
 
@@ -24,8 +26,8 @@ namespace vk_deferred::vulkan::inline pipeline {
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
                 createPipelineStages(
                     device,
-                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/full_triangle.vert.spv", vk::ShaderStageFlagBits::eVertex),
-                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/rec709.frag.spv", vk::ShaderStageFlagBits::eFragment)).get(),
+                    vku::Shader { shader::full_triangle_vert, vk::ShaderStageFlagBits::eVertex },
+                    vku::Shader { shader::rec709_frag, vk::ShaderStageFlagBits::eFragment }).get(),
                 *pipelineLayout, 1)
                 .setRenderPass(*renderPass)
                 .setSubpass(2)

@@ -41,14 +41,11 @@ cmake --preset=default # Or use your own configuration preset that inherits from
 cmake --build build -t vk-deferred
 ```
 
-The executable will be located in the build folder.
+The executable will be located in the `build` folder.
 
 ### Shader compilation
 
-All shaders are located in the [shaders](/shaders) folder and need to be manually compiled into `<shader-filename>.spv` before the application launch. To make this easier, script files are available for you:
-
-- For bash users, run the [`compile.sh`](/shaders/compile.sh) script.
-- For Windows users, run the [`compile.bat`](/shaders/compile.bat) batch file.
+All shaders are located in the [shaders](/shaders) folder. They are automatically compiled to SPIR-V and embedded into the binary executable during the build.
 
 ## About Render Pass and Attachment Images
 

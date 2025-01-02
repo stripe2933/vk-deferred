@@ -6,6 +6,8 @@ import std;
 export import glm;
 export import vulkan_hpp;
 import vku;
+import :shader.deferred_lighting_frag;
+import :shader.light_volume_vert;
 export import :vulkan.dsl.GBufferInput;
 export import :vulkan.rp.Deferred;
 
@@ -33,8 +35,8 @@ namespace vk_deferred::vulkan::inline pipeline {
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
                 createPipelineStages(
                     device,
-                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/light_volume.vert.spv", vk::ShaderStageFlagBits::eVertex),
-                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/deferred_lighting.frag.spv", vk::ShaderStageFlagBits::eFragment)).get(),
+                    vku::Shader { shader::light_volume_vert, vk::ShaderStageFlagBits::eVertex },
+                    vku::Shader { shader::deferred_lighting_frag, vk::ShaderStageFlagBits::eFragment }).get(),
                 *pipelineLayout, 1, true)
                 .setPVertexInputState(vku::unsafeAddress(vk::PipelineVertexInputStateCreateInfo {
                     {},
