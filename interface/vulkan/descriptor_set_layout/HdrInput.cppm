@@ -13,9 +13,7 @@ namespace vk_deferred::vulkan::dsl {
                 device,
                 vk::DescriptorSetLayoutCreateInfo {
                     {},
-                    vku::unsafeProxy({
-                        vk::DescriptorSetLayoutBinding { 0, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment }, // HDR image.
-                    }),
+                    vku::unsafeProxy(getBindings({ 1, vk::ShaderStageFlagBits::eFragment })), // HDR image.
                 },
             } { }
     };

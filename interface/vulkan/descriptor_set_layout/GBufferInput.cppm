@@ -13,10 +13,9 @@ namespace vk_deferred::vulkan::dsl {
                 device,
                 vk::DescriptorSetLayoutCreateInfo {
                     {},
-                    vku::unsafeProxy({
-                        vk::DescriptorSetLayoutBinding { 0, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment }, // Position.
-                        vk::DescriptorSetLayoutBinding { 1, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment }, // [0, 1] bounded normal.
-                    }),
+                    vku::unsafeProxy(getBindings(
+                        { 1, vk::ShaderStageFlagBits::eFragment }, /* Position */
+                        { 1, vk::ShaderStageFlagBits::eFragment } /* [0, 1] bounded normal */)),
                 },
             } { }
     };

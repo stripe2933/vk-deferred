@@ -21,7 +21,7 @@ namespace vk_deferred::vulkan::inline pipeline {
             const rp::Deferred &renderPass [[clang::lifetimebound]]
         ) : pipelineLayout { device, vk::PipelineLayoutCreateInfo {
                 {},
-                vku::unsafeProxy(*descriptorSetLayout),
+                *descriptorSetLayout,
             } },
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
                 createPipelineStages(
