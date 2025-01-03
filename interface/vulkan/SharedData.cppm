@@ -97,7 +97,9 @@ namespace vk_deferred::vulkan {
             return { gpu.device, vk::SwapchainCreateInfoKHR {
                 {},
                 surface,
-                std::min(surfaceCapabilities.minImageCount + 1, surfaceCapabilities.maxImageCount),
+                std::min(
+                    surfaceCapabilities.minImageCount + 1,
+                    surfaceCapabilities.maxImageCount == 0U ? std::numeric_limits<std::uint32_t>::max() : surfaceCapabilities.maxImageCount),
                 vk::Format::eB8G8R8A8Srgb,
                 vk::ColorSpaceKHR::eSrgbNonlinear,
                 swapchainExtent,
